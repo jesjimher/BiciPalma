@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hola holita</string>
+    <string name="mesproperes">Estaciones próximas</string>
+    <string name="mapaestacions">Mapa de estaciones</string>
+    <string name="otra">Otra cadenaaaaooooooo</string>
+    <string name="app_name">BiciPalma</string>
+
+    <string-array name="estacions_bicipalma">
+        <item>Pça Espanya</item>
+        <item>Blanquerna</item>
+        <item>Cort</item>
+    </string-array>
+</resources>
