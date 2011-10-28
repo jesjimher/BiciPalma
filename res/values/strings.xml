@@ -4,7 +4,7 @@
     <string name="mesproperes">Estaciones próximas</string>
     <string name="mapaestacions">Mapa de estaciones</string>
     <string name="otra">Otra cadenaaaaooooooo</string>
-    <string name="app_name">BiciPalma</string>
+    <string name="app_name">BuscaBici</string>
 
     <string-array name="estacions_bicipalma">
         <item>Pça Espanya</item>
