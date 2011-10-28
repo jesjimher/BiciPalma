@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// TODO: Sustituir ListActivity por una Activity normal y un layout normal
 public class MesProperesActivity extends ListActivity implements LocationListener,DialogInterface.OnDismissListener {
 	LocationManager locationManager;
 	Location lBest;
@@ -44,6 +45,8 @@ public class MesProperesActivity extends ListActivity implements LocationListene
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.mesproperes);
         
+        // TODO: Añadir todas las estaciones
+        // TODO: Hacerlo de forma más limpia, desde resources
         estaciones=new TreeMap();
         estaciones.put("Parc Estacions","39.57616,2.65553");
         estaciones.put("Pça Espanya","39.57536,2.6541");
@@ -91,14 +94,15 @@ public class MesProperesActivity extends ListActivity implements LocationListene
         
     // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
     public void onLocationChanged(Location location) {
-		if (isBetterLocation(location, lBest)) {
-	    	// Ocultar el diálogo de búsqueda de ubicación
+    	// TODO: Mostrar precisión de la ubicación
+		// Sólo hacer algo si la nueva ubicación es mejor que la actual
+    	if (isBetterLocation(location, lBest)) {
+	    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
 	    	if (dBuscaUbic.isShowing())
 	    		dBuscaUbic.dismiss();
 			lBest=location;
-			// TODO: Actualizar ListView a partir de nueva ubicación
 	        
-	        // Generar un TreeMap con la distancia desde la ubicación actual hasta cada estación
+	        // Calcular distancias desde la ubicación actual hasta cada estación
 	        TreeMap<String,Double> dists=new TreeMap<String, Double>();
 	        Iterator i=estaciones.keySet().iterator();
 	        while (i.hasNext()) {
@@ -111,11 +115,13 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        	dists.put(e, dist);
 	        }
 	        
+	        // Mostrarlo en el ListView
+	        // TODO: Ordenar los resultados por cercanía
 	        ArrayList<String> est=new ArrayList<String>();
 	        i=dists.keySet().iterator();
 	        while (i.hasNext()) {
 	        	String e=(String) i.next();
-	        	est.add(String.format("%s (%2d km)", e,dists.get(e)/1000));
+	        	est.add(String.format("%s (%2f km)", e,dists.get(e)/1000));
 	        }
 	        this.
 	        setListAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,est));
