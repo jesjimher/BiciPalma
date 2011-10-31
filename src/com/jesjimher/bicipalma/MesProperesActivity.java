@@ -2,6 +2,7 @@ package com.jesjimher.bicipalma;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TreeMap;
@@ -24,6 +25,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jesjimher.bicipalma.Resultado;
 
 // TODO: Sustituir ListActivity por una Activity normal y un layout normal
 public class MesProperesActivity extends ListActivity implements LocationListener,DialogInterface.OnDismissListener {
@@ -52,6 +55,13 @@ public class MesProperesActivity extends ListActivity implements LocationListene
         estaciones.put("Pça Espanya","39.57536,2.6541");
         estaciones.put("Blanquerna-Sallent","39.57815,2.6510");
         estaciones.put("Blanquerna-Bartomeu Pou","39.58705,2.6491");                
+        estaciones.put("Plaça de la Reina","39.567964,2.645897");
+        estaciones.put("Plaça Santa Eulàlia","39.569225,2.650682");
+        estaciones.put("Plaça Rei Joan Carles I","39.571409,2.646911");
+        estaciones.put("Jaume III","39.572533,2.642727");
+        estaciones.put("Porta Santa Catalina","39.571169,2.641257");
+        estaciones.put("Plaça del Mercat","39.572806,2.650012");
+        estaciones.put("Via Roma","39.575279,2.647501");
         
     	dBuscaUbic=ProgressDialog.show(this, "","Determinando ubicación",true,true);
 //        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
@@ -100,10 +110,14 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
 	    	if (dBuscaUbic.isShowing())
 	    		dBuscaUbic.dismiss();
+	    	else	    		
+	    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
+	    		
 			lBest=location;
 	        
-	        // Calcular distancias desde la ubicación actual hasta cada estación
-	        TreeMap<String,Double> dists=new TreeMap<String, Double>();
+	        // Calcular distancias desde la ubicación actual hasta cada estación, generando
+			// un objeto Resultado
+	        ArrayList<Resultado> result=new ArrayList<Resultado>();
 	        Iterator i=estaciones.keySet().iterator();
 	        while (i.hasNext()) {
 	        	String e=(String) i.next();
@@ -112,24 +126,20 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        	aux.setLatitude(new Double(coords.split(",")[0]));
 	        	aux.setLongitude(new Double(coords.split(",")[1]));
 	        	Double dist=new Double(location.distanceTo(aux));
-	        	dists.put(e, dist);
+	        	result.add(new Resultado(e,aux,dist));
 	        }
+	        
+	        // Ordenar por distancia
+	        Collections.sort(result);
 	        
 	        // Mostrarlo en el ListView
-	        // TODO: Ordenar los resultados por cercanía
 	        ArrayList<String> est=new ArrayList<String>();
-	        i=dists.keySet().iterator();
+	        i=result.iterator();
 	        while (i.hasNext()) {
-	        	String e=(String) i.next();
-	        	est.add(String.format("%s (%2f km)", e,dists.get(e)/1000));
+	        	Resultado e=(Resultado) i.next();
+	        	est.add(String.format("%s (%.2f km)", e.getNombre(),e.getDist()/1000));
 	        }
-	        this.
-	        setListAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,est));
-
-	        
-//	    	Toast.makeText(getApplicationContext(), "Mejor ubicación encontrada", Toast.LENGTH_SHORT).show();
-/*	    	TextView tv=(TextView)findViewById(R.id.prova);
-	    	tv.setText(location.toString());*/
+	        this.setListAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,est));	        
 		} else {
 	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
 		}    
