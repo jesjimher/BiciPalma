@@ -1,11 +1,24 @@
 package com.jesjimher.bicipalma;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TreeMap;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,7 +39,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jesjimher.bicipalma.Resultado;
+import com.jesjimher.bicipalma.ResultadoBusqueda;
 
 // TODO: Sustituir ListActivity por una Activity normal y un layout normal
 public class MesProperesActivity extends ListActivity implements LocationListener,DialogInterface.OnDismissListener {
@@ -41,12 +54,16 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	
 	private TreeMap<String,String> estaciones;
 	
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.mesproperes);
+
+        // Recuperar lista estaciones desde la web
+    	ProgressDialog progress = ProgressDialog.show(this, "Espere...", "Recuperando lista de estaciones");
+    	JSONObject json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
+    	progress.dismiss();
         
         // TODO: Añadir todas las estaciones
         // TODO: Hacerlo de forma más limpia, desde resources
@@ -117,7 +134,7 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        
 	        // Calcular distancias desde la ubicación actual hasta cada estación, generando
 			// un objeto Resultado
-	        ArrayList<Resultado> result=new ArrayList<Resultado>();
+	        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
 	        Iterator i=estaciones.keySet().iterator();
 	        while (i.hasNext()) {
 	        	String e=(String) i.next();
@@ -126,7 +143,7 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        	aux.setLatitude(new Double(coords.split(",")[0]));
 	        	aux.setLongitude(new Double(coords.split(",")[1]));
 	        	Double dist=new Double(location.distanceTo(aux));
-	        	result.add(new Resultado(e,aux,dist));
+	        	result.add(new ResultadoBusqueda(e,aux,dist));
 	        }
 	        
 	        // Ordenar por distancia
@@ -136,10 +153,11 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        ArrayList<String> est=new ArrayList<String>();
 	        i=result.iterator();
 	        while (i.hasNext()) {
-	        	Resultado e=(Resultado) i.next();
+	        	ResultadoBusqueda e=(ResultadoBusqueda) i.next();
 	        	est.add(String.format("%s (%.2f km)", e.getNombre(),e.getDist()/1000));
 	        }
-	        this.setListAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,est));	        
+//	        this.setListAdapter(new ArrayAdapter<String>(this,R.layout.list_item,est));	        
+	        this.setListAdapter(new ResultadoAdapter(this,result)); 	        
 		} else {
 	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
 		}    
