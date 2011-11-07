@@ -1,6 +1,5 @@
 package com.jesjimher.bicipalma;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +30,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -43,13 +43,12 @@ import android.widget.Toast;
 
 import com.jesjimher.bicipalma.ResultadoBusqueda;
 
-// TODO: Sustituir ListActivity por una Activity normal y un layout normal
 public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener {
 	LocationManager locationManager;
 	Location lBest;
 	// Tiempo inicial de búsqueda de ubicación
 	long tIni;
-	ProgressDialog dBuscaUbic;
+	ProgressDialog dBuscaUbic,dRecuperaEst;
 	private String mUbic;
 	
 	private static final int DIEZ_SEGS=10*1000;
@@ -62,49 +61,10 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
 
-        // Recuperar lista estaciones desde la web
-    	// TODO: Guardarlas en data
-        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
-        // TODO: Si la copia local es antigua, actualizarla
-        // TODO: Hacer esto de forma asíncrona, así se queda medio colgado todo
-        ProgressDialog progress = ProgressDialog.show(this, "Espere...", "Recuperando lista de estaciones",true,true);
-    	JSONArray json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
-    	
-    	// Extraer estaciones del JSON
-    	estaciones=new ArrayList<Estacion>();
-    	for(int i=0;i<json.length();i++) {
-    		try {
-				String nombre=json.getJSONObject(i).getString("alia");
-				Location pos=new Location("network");
-				pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
-				pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
-    			Estacion e=new Estacion(nombre,pos);
-				estaciones.add(e);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	progress.dismiss();
-                
-    	dBuscaUbic=ProgressDialog.show(this, "","Determinando ubicación",true,true);
-//        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-        	mUbic=LocationManager.GPS_PROVIDER;
-        else {
-        	Toast.makeText(getApplicationContext(), "Usando posicionamiento por red. Active el GPS para mayor precisión", Toast.LENGTH_LONG).show();
-        	mUbic=LocationManager.NETWORK_PROVIDER;
-        }
-        // Activar búsqueda de ubicación        
-        locationManager.requestLocationUpdates(mUbic, 0, 0, this);        
-
-    	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
-        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
-    	//tIni=new Date().getTime();
-        tIni=System.currentTimeMillis();
+        // Descargar las estaciones desde la web (en un thread aparte)
+        // Cuando acabe, se activará la búsqueda de ubicación
+        estaciones=new ArrayList<Estacion>();
+        new RecuperarEstacionesTask(this).execute();                
     }
         
     // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
@@ -147,8 +107,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        	ResultadoBusqueda e=(ResultadoBusqueda) i.next();
 	        	est.add(String.format("%s (%.2f km)", e.getEstacion().getNombre(),e.getDist()/1000));
 	        }
-//	        this.setListAdapter(new ArrayAdapter<String>(this,R.layout.list_item,est));	        
-	        
+
 	        ListView l=(ListView) this.findViewById(R.id.listado);
 	        l.setAdapter(new ResultadoAdapter(this,result)); 	        
 		} else {
@@ -208,5 +167,74 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 //		Toast.makeText(getApplicationContext(), "Fin de búsqueda de ubicación", Toast.LENGTH_SHORT).show();
 		locationManager.removeUpdates(this);		
 	}
-    
+
+	// Clase privada para recuperar la lista de estaciones en segundo plano
+	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
+
+		Context c;
+		ProgressDialog progress;
+		
+	    public RecuperarEstacionesTask(Context c) {
+	    	this.c=c;	    	
+	    }
+	    
+	    @Override
+		protected void onPreExecute() {
+	    	 dRecuperaEst = ProgressDialog.show(c, "", "Recuperando lista de estaciones",true,true);
+	    }
+		
+	    // Cuando acabe de descargar, activar la búsqueda de ubicación 
+	    protected void onPostExecute(ArrayList<Estacion> result) {
+	    	// Cerrar diálogo y guardar resultados
+	    	dRecuperaEst.dismiss();
+	    	estaciones=result;
+
+	    	dBuscaUbic=ProgressDialog.show(c, "","Determinando ubicación",true,true);
+//	        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
+	        locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+
+	        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
+	        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+	        	mUbic=LocationManager.GPS_PROVIDER;
+	        else {
+	        	Toast.makeText(getApplicationContext(), "Usando posicionamiento por red. Active el GPS para mayor precisión", Toast.LENGTH_LONG).show();
+	        	mUbic=LocationManager.NETWORK_PROVIDER;
+	        }
+	        // Activar búsqueda de ubicación        
+	        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) c);        
+
+	    	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
+	        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
+	    	//tIni=new Date().getTime();
+	        tIni=System.currentTimeMillis();
+	    }
+
+		@Override
+		protected ArrayList<Estacion> doInBackground(Void... arg0) {
+	    	JSONArray json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
+	    	
+	    	// Extraer estaciones del JSON
+	    	// TODO: Guardarlas en data
+	        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
+	        // TODO: Si la copia local es antigua, actualizarla
+	    	// TODO: Los acentos dan problemas, convertir
+	    	ArrayList<Estacion> est=new ArrayList<Estacion>();
+	    	for(int i=0;i<json.length();i++) {
+	    		try {
+					String nombre=json.getJSONObject(i).getString("alia");
+					Location pos=new Location("network");
+					pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
+					pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
+	    			Estacion e=new Estacion(nombre,pos);
+	    			est.add(e);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	    	}
+	    	return est;
+		}
+	 }	
+	
 }
+
