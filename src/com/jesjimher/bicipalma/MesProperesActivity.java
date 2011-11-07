@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,13 +37,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jesjimher.bicipalma.ResultadoBusqueda;
 
 // TODO: Sustituir ListActivity por una Activity normal y un layout normal
-public class MesProperesActivity extends ListActivity implements LocationListener,DialogInterface.OnDismissListener {
+public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener {
 	LocationManager locationManager;
 	Location lBest;
 	// Tiempo inicial de búsqueda de ubicación
@@ -52,56 +54,43 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	
 	private static final int DIEZ_SEGS=10*1000;
 	
-	private TreeMap<String,String> estaciones;
+	private ArrayList<Estacion> estaciones;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.mesproperes);
+        setContentView(R.layout.mesproperes);
 
         // Recuperar lista estaciones desde la web
-    	ProgressDialog progress = ProgressDialog.show(this, "Espere...", "Recuperando lista de estaciones");
-    	JSONObject json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
+    	// TODO: Guardarlas en data
+        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
+        // TODO: Si la copia local es antigua, actualizarla
+        // TODO: Hacer esto de forma asíncrona, así se queda medio colgado todo
+        ProgressDialog progress = ProgressDialog.show(this, "Espere...", "Recuperando lista de estaciones",true,true);
+    	JSONArray json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
+    	
+    	// Extraer estaciones del JSON
+    	estaciones=new ArrayList<Estacion>();
+    	for(int i=0;i<json.length();i++) {
+    		try {
+				String nombre=json.getJSONObject(i).getString("alia");
+				Location pos=new Location("network");
+				pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
+				pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
+    			Estacion e=new Estacion(nombre,pos);
+				estaciones.add(e);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     	progress.dismiss();
-        
-        // TODO: Añadir todas las estaciones
-        // TODO: Hacerlo de forma más limpia, desde resources
-        estaciones=new TreeMap();
-        estaciones.put("Parc Estacions","39.57616,2.65553");
-        estaciones.put("Pça Espanya","39.57536,2.6541");
-        estaciones.put("Blanquerna-Sallent","39.57815,2.6510");
-        estaciones.put("Blanquerna-Bartomeu Pou","39.58705,2.6491");                
-        estaciones.put("Plaça de la Reina","39.567964,2.645897");
-        estaciones.put("Plaça Santa Eulàlia","39.569225,2.650682");
-        estaciones.put("Plaça Rei Joan Carles I","39.571409,2.646911");
-        estaciones.put("Jaume III","39.572533,2.642727");
-        estaciones.put("Porta Santa Catalina","39.571169,2.641257");
-        estaciones.put("Plaça del Mercat","39.572806,2.650012");
-        estaciones.put("Via Roma","39.575279,2.647501");
-        
+                
     	dBuscaUbic=ProgressDialog.show(this, "","Determinando ubicación",true,true);
 //        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        // Comprobar si está el GPS activado, y dar la opción
-/*        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-        	AlertDialog.Builder b=new AlertDialog.Builder(this);
-        	b.setMessage("El GPS está desactivado. ¿Quiere activarlo para tener mayor precisión?")
-        	 .setCancelable(false)
-        	 .setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-                 public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                	 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));; 
-                 }
-             })
-             .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                 public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                     dialog.cancel();
-                }
-            });
-        	AlertDialog alert=b.create();
-        	b.show();
-        }*/
         // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
         	mUbic=LocationManager.GPS_PROVIDER;
@@ -111,17 +100,15 @@ public class MesProperesActivity extends ListActivity implements LocationListene
         }
         // Activar búsqueda de ubicación        
         locationManager.requestLocationUpdates(mUbic, 0, 0, this);        
-    	//Toast.makeText(getApplicationContext(), "Activado", Toast.LENGTH_SHORT).show();
 
     	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
-        // TODO: Sustituir con un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
+        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
     	//tIni=new Date().getTime();
         tIni=System.currentTimeMillis();
     }
         
     // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
     public void onLocationChanged(Location location) {
-    	// TODO: Mostrar precisión de la ubicación
 		// Sólo hacer algo si la nueva ubicación es mejor que la actual
     	if (isBetterLocation(location, lBest)) {
 	    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
@@ -130,20 +117,24 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	    	else	    		
 	    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
 	    		
-			lBest=location;
+			// Actualizar precisión
+	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
+	    	if (location.hasAccuracy())
+	    		pre.setText(location.getAccuracy()+"m");
+	    	else
+	    		pre.setText("Desconocida");
+	    	
+	    	lBest=location;
 	        
 	        // Calcular distancias desde la ubicación actual hasta cada estación, generando
 			// un objeto Resultado
 	        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
-	        Iterator i=estaciones.keySet().iterator();
+	        Iterator i=estaciones.iterator();
 	        while (i.hasNext()) {
-	        	String e=(String) i.next();
-	        	String coords=estaciones.get(e);
-	        	Location aux=new Location(location);
-	        	aux.setLatitude(new Double(coords.split(",")[0]));
-	        	aux.setLongitude(new Double(coords.split(",")[1]));
+	        	Estacion e=(Estacion) i.next();
+	        	Location aux=e.getLoc();
 	        	Double dist=new Double(location.distanceTo(aux));
-	        	result.add(new ResultadoBusqueda(e,aux,dist));
+	        	result.add(new ResultadoBusqueda(e,dist));
 	        }
 	        
 	        // Ordenar por distancia
@@ -154,10 +145,12 @@ public class MesProperesActivity extends ListActivity implements LocationListene
 	        i=result.iterator();
 	        while (i.hasNext()) {
 	        	ResultadoBusqueda e=(ResultadoBusqueda) i.next();
-	        	est.add(String.format("%s (%.2f km)", e.getNombre(),e.getDist()/1000));
+	        	est.add(String.format("%s (%.2f km)", e.getEstacion().getNombre(),e.getDist()/1000));
 	        }
 //	        this.setListAdapter(new ArrayAdapter<String>(this,R.layout.list_item,est));	        
-	        this.setListAdapter(new ResultadoAdapter(this,result)); 	        
+	        
+	        ListView l=(ListView) this.findViewById(R.id.listado);
+	        l.setAdapter(new ResultadoAdapter(this,result)); 	        
 		} else {
 	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
 		}    

@@ -44,7 +44,7 @@ public class ResultadoAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
   
-		holder.txtNombre.setText(listado.get(position).getNombre());
+		holder.txtNombre.setText(listado.get(position).getEstacion().getNombre());
 		holder.txtDistancia.setText(String.format("%.2f km",listado.get(position).getDist()/1000));
 
 		return convertView;	

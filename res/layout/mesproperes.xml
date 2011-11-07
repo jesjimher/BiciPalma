@@ -3,23 +3,29 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-
-	    <TextView
-	        android:id="@+id/prova"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center"
-	        android:text="LISTADO" />
-
-	    <TextView
-	        android:id="@+id/prova2"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="TextView" />
-	    <TextView
-	        android:id="@+id/prova3"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="TextView" />
-	    
+	    <ListView
+	    	android:id="@+id/listado"
+	    	android:layout_width="match_parent"
+	    	android:layout_height="fill_parent"
+	    	android:layout_weight="1" >
+	    </ListView>
+	    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:layout_marginTop="10dp"
+	    	android:orientation="horizontal"> 
+		    <TextView 
+		    	android:id="@+id/precisionLabel"
+		    	android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"
+		    	android:text="Precisión de la ubicación:"
+		    	android:layout_marginRight="10dp"
+		    />
+		    <TextView 
+		    	android:id="@+id/precisionNum"
+		    	android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"
+		    	android:text="Desconocida"
+		    />
+ 	    </LinearLayout>
 </LinearLayout>

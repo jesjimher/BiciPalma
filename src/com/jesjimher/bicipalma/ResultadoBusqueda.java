@@ -1,7 +1,5 @@
 package com.jesjimher.bicipalma;
 
-import android.location.Location;
-
 /** Resultado de una búsqueda de estaciones
  *  Ordenable por distancia
  * @author u82066
@@ -9,15 +7,11 @@ import android.location.Location;
  */
 public class ResultadoBusqueda implements Comparable {
 	
-	String nombre;
-	Location loc;
+	Estacion e;
 	Double dist;
-	Long anclajesLibres,anclajesOcupados,anclajesAveriados;
-	Long bicisLibres,bicisAveriadas;
 	
-	public ResultadoBusqueda(String nombre,Location loc,Double dist) {
-		this.nombre=nombre;
-		this.loc=loc;
+	public ResultadoBusqueda(Estacion e,Double dist) {
+		this.e=e;
 		this.dist=dist;		
 	}
 
@@ -33,21 +27,7 @@ public class ResultadoBusqueda implements Comparable {
 		else return 1;
 	}
 
-	public String getNombre() {
-		return nombre;
-	}
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	public Location getLoc() {
-		return loc;
-	}
-
-	public void setLoc(Location loc) {
-		this.loc = loc;
-	}
 
 	public Double getDist() {
 		return dist;
@@ -59,47 +39,17 @@ public class ResultadoBusqueda implements Comparable {
 
 	@Override
 	public String toString() {
-		return nombre;
+		return e.getNombre();
 	}
 
-	public Long getAnclajesLibres() {
-		return anclajesLibres;
+	public Estacion getEstacion() {
+		return e;
 	}
 
-	public void setAnclajesLibres(Long anclajesLibres) {
-		this.anclajesLibres = anclajesLibres;
+	public void setEstacion(Estacion e) {
+		this.e = e;
 	}
 
-	public Long getAnclajesOcupados() {
-		return anclajesOcupados;
-	}
 
-	public void setAnclajesOcupados(Long anclajesOcupados) {
-		this.anclajesOcupados = anclajesOcupados;
-	}
-
-	public Long getAnclajesAveriados() {
-		return anclajesAveriados;
-	}
-
-	public void setAnclajesAveriados(Long anclajesAveriados) {
-		this.anclajesAveriados = anclajesAveriados;
-	}
-
-	public Long getBicisLibres() {
-		return bicisLibres;
-	}
-
-	public void setBicisLibres(Long bicisLibres) {
-		this.bicisLibres = bicisLibres;
-	}
-
-	public Long getBicisAveriadas() {
-		return bicisAveriadas;
-	}
-
-	public void setBicisAveriadas(Long bicisAveriadas) {
-		this.bicisAveriadas = bicisAveriadas;
-	}
 
 }
