@@ -80,7 +80,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 			// Actualizar precisión
 	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
 	    	if (location.hasAccuracy())
-	    		pre.setText(location.getAccuracy()+"m");
+	    		pre.setText(String.format("%.0f m",location.getAccuracy()));
 	    	else
 	    		pre.setText("Desconocida");
 	    	
