@@ -1,33 +1,19 @@
 package com.jesjimher.bicipalma;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.CookieStore;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.os.Environment;
 import android.util.Log;
 
 public class BicipalmaJsonClient {
@@ -53,31 +39,18 @@ public class BicipalmaJsonClient {
 				// A Simple JSON Response Read
 				InputStream instream = he.getContent();
 				String result= convertStreamToString(instream);
-				Log.i("PRUEBA",result);
+/*				Log.i("PRUEBA",result);
+				String aa=new String(result.getBytes(),"ISO-8859-1");
+				Log.d("PRUEBA",aa);*/
 				
-/*				try {
-				    File root = Environment.getExternalStorageDirectory();
-				    if (root.canWrite()){
-				        File gpxfile = new File(root, "json.txt");
-				        FileWriter gpxwriter = new FileWriter(gpxfile);
-				        BufferedWriter out = new BufferedWriter(gpxwriter);
-				        out.write(result);
-				        out.close();
-				    }
-				} catch (IOException e) {
-				    Log.e("PRUEBA", "Could not write file " + e.getMessage());
-				}*/								
 				json=new JSONArray(result);			
 				instream.close();
 			}		 
 		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

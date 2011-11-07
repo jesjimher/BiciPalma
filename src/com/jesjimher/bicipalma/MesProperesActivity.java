@@ -1,42 +1,19 @@
 package com.jesjimher.bicipalma;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.TreeMap;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,10 +38,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
 
+        // TODO: No volver a descargar en cambios de orientación
         // Descargar las estaciones desde la web (en un thread aparte)
         // Cuando acabe, se activará la búsqueda de ubicación
         estaciones=new ArrayList<Estacion>();
-        new RecuperarEstacionesTask(this).execute();                
+        new RecuperarEstacionesTask(this).execute();
     }
         
     // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
@@ -109,7 +87,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        }
 
 	        ListView l=(ListView) this.findViewById(R.id.listado);
-	        l.setAdapter(new ResultadoAdapter(this,result)); 	        
+	        l.setAdapter(new ResultadoAdapter(this,result));
+	        
+	        // TODO: Crear handler que al hacer clic abra Google Maps
 		} else {
 	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
 		}    
@@ -169,10 +149,10 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	}
 
 	// Clase privada para recuperar la lista de estaciones en segundo plano
+	// TODO: Mover a BiciPalmaActivity, tiene más sentido allí. Pasar luego los datos con un Bundle
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
 
 		Context c;
-		ProgressDialog progress;
 		
 	    public RecuperarEstacionesTask(Context c) {
 	    	this.c=c;	    	
@@ -228,7 +208,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    			Estacion e=new Estacion(nombre,pos);
 	    			est.add(e);
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	    	}
