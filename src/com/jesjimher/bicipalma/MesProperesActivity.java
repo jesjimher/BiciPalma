@@ -110,9 +110,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        }
 
 	        ListView l=(ListView) this.findViewById(R.id.listado);
-	        l.setAdapter(new ResultadoAdapter(this,result));
-	        
-	        // TODO: Crear handler que al hacer clic abra Google Maps
+	        l.setAdapter(new ResultadoAdapter(this,result));	        
 		} else {
 	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
 		}    
@@ -173,6 +171,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 
 	// Clase privada para recuperar la lista de estaciones en segundo plano
 	// TODO: Mover a BiciPalmaActivity, tiene más sentido allí. Pasar luego los datos con un Bundle
+	// TODO: Mostrar un ProgressDialog con una barra de progreso
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
 
 		Context c;
