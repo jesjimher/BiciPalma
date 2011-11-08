@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -38,7 +40,11 @@ public class BicipalmaJsonClient {
 			if (he != null) {			 
 				// A Simple JSON Response Read
 				InputStream instream = he.getContent();
-				String result= convertStreamToString(instream);
+				// Averiguar el encoding
+				String enc=he.getContentType().getValue();
+				enc=enc.substring(enc.indexOf("charset=")+8);
+				if (enc.length()<=0) enc="ISO-8859-1";
+				String result= convertStreamToString(instream,enc);
 /*				Log.i("PRUEBA",result);
 				String aa=new String(result.getBytes(),"ISO-8859-1");
 				Log.d("PRUEBA",aa);*/
@@ -58,8 +64,14 @@ public class BicipalmaJsonClient {
 	}
 
 	// Convierte un InputStream a una cadena
-	public static String convertStreamToString(InputStream is) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+	public static String convertStreamToString(InputStream is,String encoding) {
+		BufferedReader reader=null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(is,encoding));
+		} catch (UnsupportedEncodingException e1) {
+			// Si el encoding proporcionado no es válido, usar el encoding por defecto
+			reader = new BufferedReader(new InputStreamReader(is));
+		}
 		StringBuilder sb = new StringBuilder();
 		 
 		String line = null;

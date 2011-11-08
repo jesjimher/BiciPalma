@@ -197,7 +197,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	// TODO: Guardarlas en data
 	        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
 	        // TODO: Si la copia local es antigua, actualizarla
-	    	// TODO: Los acentos dan problemas, convertir
 	    	ArrayList<Estacion> est=new ArrayList<Estacion>();
 	    	for(int i=0;i<json.length();i++) {
 	    		try {
