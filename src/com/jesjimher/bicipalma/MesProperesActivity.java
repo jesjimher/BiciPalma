@@ -9,11 +9,16 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +40,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	// TODO: Añadir combo para seleccionar orden: sólo distancia/bicis libres/anclajes libres
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
 
@@ -43,6 +49,23 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         // Cuando acabe, se activará la búsqueda de ubicación
         estaciones=new ArrayList<Estacion>();
         new RecuperarEstacionesTask(this).execute();
+        
+        // Al seleccionar una estación, abrimos Google Maps
+        // TODO: Mirar si abrir GMaps externo o interno
+        // TODO: Menú con clic largo para abrir en gmaps, navigation
+        ListView lv=(ListView) findViewById(R.id.listado);
+        lv.setOnItemClickListener(new OnItemClickListener() {
+        	public void onItemClick(AdapterView<?> parent, View v,int position,long id) {
+        		ResultadoBusqueda rb=(ResultadoBusqueda) parent.getAdapter().getItem(position);
+        		// Más rápido en posicionar, pero no muestra pin
+//        		String uri="geo:"+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude();
+        		String uri="geo:0,0?q="+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude()+" ("+rb.getEstacion().getNombre()+")";
+        		startActivity(new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri)));
+//        		Toast.makeText(getApplicationContext(), rb.getEstacion().getNombre(),Toast.LENGTH_SHORT).show();
+        	}
+		});
+        
+        
     }
         
     // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
