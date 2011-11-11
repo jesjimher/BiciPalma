@@ -5,8 +5,9 @@
     <string name="mapaestacions">Mapa de estaciones</string>
     <string name="otra">Otra cadena</string>
     <string name="app_name">BuscaBici</string>
-    <string name="lbicislibres">Bicis libres</string>
-    <string name="lanclajeslibres">Anclajes vacíos</string>
+    <string name="lbicislibres">Bicis</string>
+    <string name="lanclajeslibres">Anclajes libres</string>
+    <string name="recuperandolista">Recuperando lista de estaciones</string>    
         
 
     <string-array name="estacions_bicipalma">
@@ -14,4 +15,6 @@
         <item>Blanquerna</item>
         <item>Cort</item>
     </string-array>
+    <string name="avisonogps">Usando posicionamiento por red. Active el GPS para mayor precisión</string>
+    <string name="buscandoubica">Determinando ubicación...</string>
 </resources>

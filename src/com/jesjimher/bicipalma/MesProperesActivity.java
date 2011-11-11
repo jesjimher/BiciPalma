@@ -90,7 +90,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        // Calcular distancias desde la ubicaci�n actual hasta cada estaci�n, generando
 			// un objeto Resultado
 	        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
-	        Iterator i=estaciones.iterator();
+	        Iterator<Estacion> i=estaciones.iterator();
 	        while (i.hasNext()) {
 	        	Estacion e=(Estacion) i.next();
 	        	Location aux=e.getLoc();
@@ -103,16 +103,16 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        
 	        // Mostrarlo en el ListView
 	        ArrayList<String> est=new ArrayList<String>();
-	        i=result.iterator();
-	        while (i.hasNext()) {
-	        	ResultadoBusqueda e=(ResultadoBusqueda) i.next();
+	        Iterator<ResultadoBusqueda> j=result.iterator();
+	        while (j.hasNext()) {
+	        	ResultadoBusqueda e=(ResultadoBusqueda) j.next();
 	        	est.add(String.format("%s (%.2f km)", e.getEstacion().getNombre(),e.getDist()/1000));
 	        }
 
 	        ListView l=(ListView) this.findViewById(R.id.listado);
 	        l.setAdapter(new ResultadoAdapter(this,result));	        
 		} else {
-	    	Toast.makeText(getApplicationContext(), "Ignorando ubicaci�n chunga", Toast.LENGTH_SHORT).show();
+	    	//Toast.makeText(getApplicationContext(), "Ignorando ubicaci�n chunga", Toast.LENGTH_SHORT).show();
 		}    
     }
     
@@ -182,7 +182,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    
 	    @Override
 		protected void onPreExecute() {
-	    	 dRecuperaEst = ProgressDialog.show(c, "", "Recuperando lista de estaciones",true,true);
+	    	 dRecuperaEst = ProgressDialog.show(c, "", getString(R.string.recuperandolista),true,true);
 	    }
 		
 	    // Cuando acabe de descargar, activar la b�squeda de ubicaci�n 
@@ -191,7 +191,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	dRecuperaEst.dismiss();
 	    	estaciones=result;
 
-	    	dBuscaUbic=ProgressDialog.show(c, "","Determinando ubicaci�n",true,true);
+	    	dBuscaUbic=ProgressDialog.show(c, "",getString(R.string.buscandoubica),true,true);
 //	        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
 	        locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
 
@@ -199,7 +199,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 	        	mUbic=LocationManager.GPS_PROVIDER;
 	        else {
-	        	Toast.makeText(getApplicationContext(), "Usando posicionamiento por red. Active el GPS para mayor precisi�n", Toast.LENGTH_LONG).show();
+	        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
 	        	mUbic=LocationManager.NETWORK_PROVIDER;
 	        }
 	        // Activar b�squeda de ubicaci�n        
@@ -227,6 +227,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 					pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
 					pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
 	    			Estacion e=new Estacion(nombre,pos);
+	    			// TODO: parsear el HTML para extraer bicis y anclajes libres
+	    			String html=json.getJSONObject(i).getString("paramsHtml");
+	    			
 	    			e.setBicisLibres(0);
 	    			e.setAnclajesLibres(0);
 	    			est.add(e);
