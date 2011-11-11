@@ -3,8 +3,11 @@
     <string name="hello">Hola holita</string>
     <string name="mesproperes">Estaciones próximas</string>
     <string name="mapaestacions">Mapa de estaciones</string>
-    <string name="otra">Otra cadenaaaaooooooo</string>
+    <string name="otra">Otra cadena</string>
     <string name="app_name">BuscaBici</string>
+    <string name="lbicislibres">Bicis libres</string>
+    <string name="lanclajeslibres">Anclajes vacíos</string>
+        
 
     <string-array name="estacions_bicipalma">
         <item>Pça Espanya</item>

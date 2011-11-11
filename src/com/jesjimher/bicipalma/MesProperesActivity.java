@@ -28,7 +28,7 @@ import com.jesjimher.bicipalma.ResultadoBusqueda;
 public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener {
 	LocationManager locationManager;
 	Location lBest;
-	// Tiempo inicial de búsqueda de ubicación
+	// Tiempo inicial de bï¿½squeda de ubicaciï¿½n
 	long tIni;
 	ProgressDialog dBuscaUbic,dRecuperaEst;
 	private String mUbic;
@@ -40,24 +40,24 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	// TODO: Añadir combo para seleccionar orden: sólo distancia/bicis libres/anclajes libres
+    	// TODO: Aï¿½adir combo para seleccionar orden: sï¿½lo distancia/bicis libres/anclajes libres
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
 
-        // TODO: No volver a descargar en cambios de orientación
+        // TODO: No volver a descargar en cambios de orientaciï¿½n
         // Descargar las estaciones desde la web (en un thread aparte)
-        // Cuando acabe, se activará la búsqueda de ubicación
+        // Cuando acabe, se activarï¿½ la bï¿½squeda de ubicaciï¿½n
         estaciones=new ArrayList<Estacion>();
         new RecuperarEstacionesTask(this).execute();
         
-        // Al seleccionar una estación, abrimos Google Maps
+        // Al seleccionar una estaciï¿½n, abrimos Google Maps
         // TODO: Mirar si abrir GMaps externo o interno
-        // TODO: Menú con clic largo para abrir en gmaps, navigation
+        // TODO: Menï¿½ con clic largo para abrir en gmaps, navigation
         ListView lv=(ListView) findViewById(R.id.listado);
         lv.setOnItemClickListener(new OnItemClickListener() {
         	public void onItemClick(AdapterView<?> parent, View v,int position,long id) {
         		ResultadoBusqueda rb=(ResultadoBusqueda) parent.getAdapter().getItem(position);
-        		// Más rápido en posicionar, pero no muestra pin
+        		// Mï¿½s rï¿½pido en posicionar, pero no muestra pin
 //        		String uri="geo:"+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude();
         		String uri="geo:0,0?q="+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude()+" ("+rb.getEstacion().getNombre()+")";
         		startActivity(new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri)));
@@ -68,17 +68,17 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         
     }
         
-    // Cuando llega una nueva ubicación mejor que la actual, reordenamos el listado
+    // Cuando llega una nueva ubicaciï¿½n mejor que la actual, reordenamos el listado
     public void onLocationChanged(Location location) {
-		// Sólo hacer algo si la nueva ubicación es mejor que la actual
+		// Sï¿½lo hacer algo si la nueva ubicaciï¿½n es mejor que la actual
     	if (isBetterLocation(location, lBest)) {
-	    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
+	    	// Ocultar el diï¿½logo de bï¿½squeda de ubicaciï¿½n si se estaba visualizando
 	    	if (dBuscaUbic.isShowing())
 	    		dBuscaUbic.dismiss();
 	    	else	    		
 	    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
 	    		
-			// Actualizar precisión
+			// Actualizar precisiï¿½n
 	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
 	    	if (location.hasAccuracy())
 	    		pre.setText(String.format("%.0f m",location.getAccuracy()));
@@ -87,7 +87,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	
 	    	lBest=location;
 	        
-	        // Calcular distancias desde la ubicación actual hasta cada estación, generando
+	        // Calcular distancias desde la ubicaciï¿½n actual hasta cada estaciï¿½n, generando
 			// un objeto Resultado
 	        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
 	        Iterator i=estaciones.iterator();
@@ -112,12 +112,12 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        ListView l=(ListView) this.findViewById(R.id.listado);
 	        l.setAdapter(new ResultadoAdapter(this,result));	        
 		} else {
-	    	Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
+	    	Toast.makeText(getApplicationContext(), "Ignorando ubicaciï¿½n chunga", Toast.LENGTH_SHORT).show();
 		}    
     }
     
     /** Determines whether one Location reading is better than the current Location fix
-     *  (EXTRAÍDO DEL SDK, MODIFICADO PARA ADAPTARLO A UBICACIÓN RÁPIDA)
+     *  (EXTRAï¿½DO DEL SDK, MODIFICADO PARA ADAPTARLO A UBICACIï¿½N Rï¿½PIDA)
      * @param location  The new Location that you want to evaluate
      * @param currentBestLocation  The current Location fix, to which you want to compare the new one
      */
@@ -156,21 +156,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 
     public void onProviderDisabled(String provider) {}
     
-    // Dejamos de buscar ubicación al salir
+    // Dejamos de buscar ubicaciï¿½n al salir
     @Override
     protected void onStop() {
-//    	Toast.makeText(getApplicationContext(), "Fin de búsqueda de ubicación", Toast.LENGTH_SHORT).show();
+//    	Toast.makeText(getApplicationContext(), "Fin de bï¿½squeda de ubicaciï¿½n", Toast.LENGTH_SHORT).show();
     	locationManager.removeUpdates(this);    	
     	super.onStop();
     }
 
 	public void onDismiss(DialogInterface arg0) {
-//		Toast.makeText(getApplicationContext(), "Fin de búsqueda de ubicación", Toast.LENGTH_SHORT).show();
+//		Toast.makeText(getApplicationContext(), "Fin de bï¿½squeda de ubicaciï¿½n", Toast.LENGTH_SHORT).show();
 		locationManager.removeUpdates(this);		
 	}
 
 	// Clase privada para recuperar la lista de estaciones en segundo plano
-	// TODO: Mover a BiciPalmaActivity, tiene más sentido allí. Pasar luego los datos con un Bundle
+	// TODO: Mover a BiciPalmaActivity, tiene mï¿½s sentido allï¿½. Pasar luego los datos con un Bundle
 	// TODO: Mostrar un ProgressDialog con una barra de progreso
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
 
@@ -185,28 +185,28 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	 dRecuperaEst = ProgressDialog.show(c, "", "Recuperando lista de estaciones",true,true);
 	    }
 		
-	    // Cuando acabe de descargar, activar la búsqueda de ubicación 
+	    // Cuando acabe de descargar, activar la bï¿½squeda de ubicaciï¿½n 
 	    protected void onPostExecute(ArrayList<Estacion> result) {
-	    	// Cerrar diálogo y guardar resultados
+	    	// Cerrar diï¿½logo y guardar resultados
 	    	dRecuperaEst.dismiss();
 	    	estaciones=result;
 
-	    	dBuscaUbic=ProgressDialog.show(c, "","Determinando ubicación",true,true);
+	    	dBuscaUbic=ProgressDialog.show(c, "","Determinando ubicaciï¿½n",true,true);
 //	        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
 	        locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
 
-	        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
+	        // Comprobar si se ha activado o no el GPS, y decidir el mï¿½todo para ubicarse
 	        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 	        	mUbic=LocationManager.GPS_PROVIDER;
 	        else {
-	        	Toast.makeText(getApplicationContext(), "Usando posicionamiento por red. Active el GPS para mayor precisión", Toast.LENGTH_LONG).show();
+	        	Toast.makeText(getApplicationContext(), "Usando posicionamiento por red. Active el GPS para mayor precisiï¿½n", Toast.LENGTH_LONG).show();
 	        	mUbic=LocationManager.NETWORK_PROVIDER;
 	        }
-	        // Activar búsqueda de ubicación        
+	        // Activar bï¿½squeda de ubicaciï¿½n        
 	        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) c);        
 
-	    	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
-	        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
+	    	// Guardar el inicio de bï¿½squeda de ubicaciï¿½n para no pasarse de tiempo
+	        // TODO: Crear un Timer que pare la bï¿½squeda de ubicaciï¿½n cuando pase un tiempo mï¿½ximo
 	    	//tIni=new Date().getTime();
 	        tIni=System.currentTimeMillis();
 	    }
@@ -217,7 +217,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	
 	    	// Extraer estaciones del JSON
 	    	// TODO: Guardarlas en data
-	        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
+	        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nï¿½ de bicis libres
 	        // TODO: Si la copia local es antigua, actualizarla
 	    	ArrayList<Estacion> est=new ArrayList<Estacion>();
 	    	for(int i=0;i<json.length();i++) {
@@ -227,6 +227,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 					pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
 					pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
 	    			Estacion e=new Estacion(nombre,pos);
+	    			e.setBicisLibres(0);
+	    			e.setAnclajesLibres(0);
 	    			est.add(e);
 				} catch (JSONException e) {
 					e.printStackTrace();
