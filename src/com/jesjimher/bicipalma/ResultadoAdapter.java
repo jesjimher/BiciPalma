@@ -52,7 +52,12 @@ public class ResultadoAdapter extends BaseAdapter {
 		holder.txtNombre.setText(listado.get(position).getEstacion().getNombre());
 		holder.txtDistancia.setText(String.format("%.2f km",listado.get(position).getDist()/1000));
 		holder.txtBicisLibres.setText(String.format("%s: %d",this.c.getString(R.string.lbicislibres),listado.get(position).getEstacion().getBicisLibres()));
+		if (listado.get(position).getEstacion().getBicisLibres()==0) 
+			holder.txtBicisLibres.setTextColor(android.graphics.Color.RED);
+			
 		holder.txtAnclajesLibres.setText(String.format("%s: %d",this.c.getString(R.string.lanclajeslibres),listado.get(position).getEstacion().getAnclajesLibres()));
+		if (listado.get(position).getEstacion().getAnclajesLibres()==0) 
+			holder.txtAnclajesLibres.setTextColor(android.graphics.Color.RED);
 
 		return convertView;	
 	}
