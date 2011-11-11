@@ -227,11 +227,17 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 					pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
 					pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
 	    			Estacion e=new Estacion(nombre,pos);
-	    			// TODO: parsear el HTML para extraer bicis y anclajes libres
 	    			String html=json.getJSONObject(i).getString("paramsHtml");
-	    			
-	    			e.setBicisLibres(0);
-	    			e.setAnclajesLibres(0);
+	    			int pos2=html.indexOf("Bicis Libres:</span>")+"Bicis Libres:</span>".length();
+	    			if (pos2>0)
+	    				e.setBicisLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+	    			else
+	    				e.setBicisLibres(0);
+	    			pos2=html.indexOf("Anclajes Libres:</span>")+"Anclajes Libres:</span>".length();
+	    			if (pos2>0)
+	    				e.setAnclajesLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+	    			else
+	    				e.setAnclajesLibres(0);
 	    			est.add(e);
 				} catch (JSONException e) {
 					e.printStackTrace();
