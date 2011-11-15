@@ -31,13 +31,13 @@ public class Estacion {
 	public Long getBicisLibres() {
 		return bicisLibres;
 	}
-	public void setBicisLibres(Long bicisLibres) {
+	public void setBicisLibres(long bicisLibres) {
 		this.bicisLibres = bicisLibres;
 	}
 	public Long getAnclajesLibres() {
 		return anclajesLibres;
 	}
-	public void setAnclajesLibres(Long anclajesLibres) {
+	public void setAnclajesLibres(long anclajesLibres) {
 		this.anclajesLibres = anclajesLibres;
 	}
 }

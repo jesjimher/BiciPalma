@@ -25,12 +25,10 @@ public class BiciPalmaActivity extends Activity implements OnClickListener{
     // Handlers de botones
     public void onClick(View v) {
 		if (v.getId()==R.id.mespropera) {
-			//Toast.makeText(getApplicationContext(), "Més propera", Toast.LENGTH_SHORT).show();
 			Intent i=new Intent(this,MesProperesActivity.class);
 			startActivity(i);
 		}
 		if (v.getId()==R.id.mapa) {
-			//Toast.makeText(getApplicationContext(), "Mapa", Toast.LENGTH_SHORT).show();			
 		}		
 	}
         
