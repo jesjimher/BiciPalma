@@ -10,12 +10,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -25,13 +30,14 @@ import android.widget.Toast;
 
 import com.jesjimher.bicipalma.ResultadoBusqueda;
 
-public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener {
+public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener {
 	LocationManager locationManager;
 	Location lBest;
 	// Tiempo inicial de bï¿½squeda de ubicaciï¿½n
 	long tIni;
 	ProgressDialog dBuscaUbic,dRecuperaEst;
 	private String mUbic;
+	private SharedPreferences prefs;
 	
 	private static final int DIEZ_SEGS=10*1000;
 	
@@ -43,7 +49,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     	// TODO: Aï¿½adir combo para seleccionar orden: sï¿½lo distancia/bicis libres/anclajes libres
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
-
+        
         // TODO: No volver a descargar en cambios de orientaciï¿½n
         // Descargar las estaciones desde la web (en un thread aparte)
         // Cuando acabe, se activarï¿½ la bï¿½squeda de ubicaciï¿½n
@@ -65,9 +71,33 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	}
 		});
         
-        
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
     }
         
+    public void actualizarListado() {
+        // Mirar si está activa la opción de ocultar estaciones vacías
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean ocultarVacios=sharedPrefs.getBoolean("ocultarVaciosPref", false);
+
+        // Calcular distancias desde la ubicaciï¿½n actual hasta cada estaciï¿½n, generando
+		// un objeto Resultado
+        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
+        Iterator<Estacion> i=estaciones.iterator();
+        while (i.hasNext()) {
+        	Estacion e=(Estacion) i.next();
+        	Location aux=e.getLoc();
+        	Double dist=new Double(lBest.distanceTo(aux));
+        	if (!(ocultarVacios && (e.getBicisLibres()<=0)))
+        		result.add(new ResultadoBusqueda(e,dist));
+        }	        
+        	       	        
+        // Ordenar por distancia
+        Collections.sort(result);	        
+
+        ListView l=(ListView) this.findViewById(R.id.listado);
+        l.setAdapter(new ResultadoAdapter(this,result));	    	
+    }
+    
     // Cuando llega una nueva ubicaciï¿½n mejor que la actual, reordenamos el listado
     public void onLocationChanged(Location location) {
 		// Sï¿½lo hacer algo si la nueva ubicaciï¿½n es mejor que la actual
@@ -87,30 +117,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	
 	    	lBest=location;
 	        
-	        // Calcular distancias desde la ubicaciï¿½n actual hasta cada estaciï¿½n, generando
-			// un objeto Resultado
-	        ArrayList<ResultadoBusqueda> result=new ArrayList<ResultadoBusqueda>();
-	        Iterator<Estacion> i=estaciones.iterator();
-	        while (i.hasNext()) {
-	        	Estacion e=(Estacion) i.next();
-	        	Location aux=e.getLoc();
-	        	Double dist=new Double(location.distanceTo(aux));
-	        	result.add(new ResultadoBusqueda(e,dist));
-	        }
-	        
-	        // Ordenar por distancia
-	        Collections.sort(result);
-	        
-	        // Mostrarlo en el ListView
-	        ArrayList<String> est=new ArrayList<String>();
-	        Iterator<ResultadoBusqueda> j=result.iterator();
-	        while (j.hasNext()) {
-	        	ResultadoBusqueda e=(ResultadoBusqueda) j.next();
-	        	est.add(String.format("%s (%.2f km)", e.getEstacion().getNombre(),e.getDist()/1000));
-	        }
-
-	        ListView l=(ListView) this.findViewById(R.id.listado);
-	        l.setAdapter(new ResultadoAdapter(this,result));	        
+	    	actualizarListado();
+        
 		} else {
 	    	//Toast.makeText(getApplicationContext(), "Ignorando ubicaciï¿½n chunga", Toast.LENGTH_SHORT).show();
 		}    
@@ -169,6 +177,26 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		locationManager.removeUpdates(this);		
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
+	}	
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.preferencias:
+	    	Intent settingsActivity = new Intent(getBaseContext(),PreferenciasActivity.class);
+	    	startActivity(settingsActivity);
+	        prefs.registerOnSharedPreferenceChangeListener(this);
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}	
 	// Clase privada para recuperar la lista de estaciones en segundo plano
 	// TODO: Mover a BiciPalmaActivity, tiene mï¿½s sentido allï¿½. Pasar luego los datos con un Bundle
 	// TODO: Mostrar un ProgressDialog con una barra de progreso
@@ -245,7 +273,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	}
 	    	return est;
 		}
-	 }	
+	 }
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
+		  if (key.equals("ocultarVaciosPref"))
+			  actualizarListado(); 		
+	}	
 	
 }
 

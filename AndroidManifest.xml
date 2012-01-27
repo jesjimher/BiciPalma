@@ -22,6 +22,7 @@
         </activity>
         <uses-library android:name="com.google.android.maps" />
         <activity android:label="@string/mesproperes" android:name=".MesProperesActivity"></activity>
+        <activity android:icon="@android:drawable/ic_menu_preferences" android:name=".PreferenciasActivity" android:label="@string/menuPreferencias"></activity>
     </application>
 
 </manifest>

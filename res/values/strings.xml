@@ -17,4 +17,10 @@
     </string-array>
     <string name="avisonogps">Usando posicionamiento por red. Active el GPS para mayor precisión</string>
     <string name="buscandoubica">Determinando ubicación...</string>
+    <string name="busco">Busco:</string>
+    <string name="buscobici">Bici</string>
+    <string name="buscoanclaje">Anclaje</string>
+    <string name="prefocultarvacios">Ocultar vacíos</string>
+    <string name="prefocultarvacios_sum">Ocultar estaciones sin bicis/anclajes disponibles</string>
+    <string name="menuPreferencias">Preferencias</string>
 </resources>
