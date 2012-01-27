@@ -20,6 +20,8 @@ public class BiciPalmaActivity extends Activity implements OnClickListener{
         
         b=(Button)findViewById(R.id.mespropera);
         b.setOnClickListener(this);
+//TODO: Mostrar estado del servicio (bicis en circulación, averiadas, etc.)
+//TODO: Ir directamente a lista de estaciones
     }
 
     // Handlers de botones
