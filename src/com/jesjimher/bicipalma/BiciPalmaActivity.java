@@ -22,6 +22,10 @@ public class BiciPalmaActivity extends Activity implements OnClickListener{
         b.setOnClickListener(this);
 //TODO: Mostrar estado del servicio (bicis en circulación, averiadas, etc.)
 //TODO: Ir directamente a lista de estaciones
+        
+		// APAÑO, habría que quitar esta pantalla
+        Intent i=new Intent(this,MesProperesActivity.class);
+		startActivity(i);
     }
 
     // Handlers de botones
