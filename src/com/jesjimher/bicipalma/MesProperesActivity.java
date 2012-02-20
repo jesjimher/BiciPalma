@@ -43,10 +43,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	
 	private ArrayList<Estacion> estaciones;
 	
+	private RecuperarEstacionesTask descargaEstaciones;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	// TODO: A�adir combo para seleccionar orden: s�lo distancia/bicis libres/anclajes libres
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
         
@@ -54,7 +55,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         // Descargar las estaciones desde la web (en un thread aparte)
         // Cuando acabe, se activar� la b�squeda de ubicaci�n
         estaciones=new ArrayList<Estacion>();
-        new RecuperarEstacionesTask(this).execute();
+        descargaEstaciones=new RecuperarEstacionesTask(this);
+        descargaEstaciones.execute();
         
         // Al seleccionar una estaci�n, abrimos Google Maps
         // TODO: Mirar si abrir GMaps externo o interno
@@ -166,15 +168,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     
     // Dejamos de buscar ubicaci�n al salir
     @Override
-    protected void onStop() {
-//    	Toast.makeText(getApplicationContext(), "Fin de b�squeda de ubicaci�n", Toast.LENGTH_SHORT).show();
-    	locationManager.removeUpdates(this);    	
-    	super.onStop();
+    public void onPause() {
+    	if (locationManager!=null)
+    		locationManager.removeUpdates(this);
+    	// Si habia descargas en curso, pararlas
+    	if (descargaEstaciones!=null) {
+    		descargaEstaciones.cancel(true);
+    		descargaEstaciones=null;
+    	}
+    	super.onPause();
     }
 
 	public void onDismiss(DialogInterface arg0) {
 //		Toast.makeText(getApplicationContext(), "Fin de b�squeda de ubicaci�n", Toast.LENGTH_SHORT).show();
-		locationManager.removeUpdates(this);		
+    	if (locationManager!=null)
+    		locationManager.removeUpdates(this);
 	}
 
 	@Override
