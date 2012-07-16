@@ -2,12 +2,12 @@
 <resources>
     <string name="hello">Hola holita</string>
     <string name="mesproperes">Estacions properes</string>
-    <string name="mapaestacions">Mapa d'estacions</string>
+    <string name="mapaestacions">Mapa d\'estacions</string>
     <string name="otra">Altra cadena</string>
     <string name="app_name">BuscaBici</string>
     <string name="lbicislibres">Bicis</string>
     <string name="lanclajeslibres">Ancoratges lliures</string>
-    <string name="recuperandolista">Recuperant llista d'estacions</string>    
+    <string name="recuperandolista">Recuperant llista d\'estacions</string>    
         
 
     <string-array name="estacions_bicipalma">
@@ -16,7 +16,7 @@
         <item>Cort</item>
     </string-array>
     <string name="avisonogps">Emprant posicionament per xarxa. Activi el GPS per una major precisió</string>
-    <string name="buscandoubica">Determinant ubicació...</string>
+    <string name="buscandoubica">Determinant ubicació…</string>
     <string name="busco">Busco:</string>
     <string name="buscobici">Bici</string>
     <string name="buscoanclaje">Ancoratge</string>

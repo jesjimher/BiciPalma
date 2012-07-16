@@ -16,7 +16,7 @@
         <item>Cort</item>
     </string-array>
     <string name="avisonogps">Usando posicionamiento por red. Active el GPS para mayor precisión</string>
-    <string name="buscandoubica">Determinando ubicación...</string>
+    <string name="buscandoubica">Determinando ubicación…</string>
     <string name="busco">Busco:</string>
     <string name="buscobici">Bici</string>
     <string name="buscoanclaje">Anclaje</string>
