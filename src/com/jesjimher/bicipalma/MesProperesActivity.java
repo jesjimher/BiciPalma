@@ -1,5 +1,11 @@
 package com.jesjimher.bicipalma;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,10 +38,10 @@ import com.jesjimher.bicipalma.ResultadoBusqueda;
 
 public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener {
 	LocationManager locationManager;
-	Location lBest;
+	Location lBest=null;
 	// Tiempo inicial de búsqueda de ubicación
 	long tIni;
-	ProgressDialog dBuscaUbic,dRecuperaEst;
+	ProgressDialog dRecuperaEst;
 	private String mUbic;
 	private SharedPreferences prefs;
 	
@@ -52,13 +58,55 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         setContentView(R.layout.mesproperes);
         
         // TODO: No volver a descargar en cambios de orientación
+        // Leer las estaciones de disco si están disponibles
+        try {
+			File f=new File("estaciones.json");
+			if (f.exists()) {
+				BufferedReader fis;
+				fis = new BufferedReader(new FileReader(f));
+				String s=fis.readLine();
+				leerFicheroEstaciones(new JSONArray(s));
+				// Poner nº de bicis/anclajes a desconocido
+				for(int i=0;i<estaciones.size();i++) {
+					estaciones.get(i).setAnclajesLibres(-1);
+					estaciones.get(i).setBicisLibres(-1);
+				}
+				actualizarListado();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        	
         // Descargar las estaciones desde la web (en un thread aparte)
         // Cuando acabe, se activará la búsqueda de ubicación
         estaciones=new ArrayList<Estacion>();
         descargaEstaciones=new RecuperarEstacionesTask(this);
         descargaEstaciones.execute();
         
-        // Al seleccionar una estación, abrimos Google Maps
+        // Activar búsqueda de ubicación
+ //    	dBuscaUbic=ProgressDialog.show(c, "",getString(R.string.buscandoubica),true,true);
+//        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        	mUbic=LocationManager.GPS_PROVIDER;
+        else {
+        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
+        	mUbic=LocationManager.NETWORK_PROVIDER;
+        }
+        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) this);        
+
+    	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
+        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
+    	//tIni=new Date().getTime();
+        tIni=System.currentTimeMillis();
+
+        // Crear listener para abrir una estación en Google Maps al seleccionarla
         // TODO: Mirar si abrir GMaps externo o interno
         // TODO: Menú con clic largo para abrir en gmaps, navigation
         ListView lv=(ListView) findViewById(R.id.listado);
@@ -76,8 +124,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
     }
         
+    /**
+     *	Actualiza el listado de estaciones 
+     */
     public void actualizarListado() {
-        // Mirar si está activa la opción de ocultar estaciones vacías
+    	// Si no se han descargado las estaciones y hay ubicación disponible, no hacer nada
+    	if ((estaciones.size()==0) || (lBest==null))
+    		return;
+    	
+    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
+    	if (dRecuperaEst.isShowing())
+    		dRecuperaEst.dismiss();
+    	else	    		
+    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
+
+    	// Mirar si está activa la opción de ocultar estaciones vacías
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean ocultarVacios=sharedPrefs.getBoolean("ocultarVaciosPref", false);
 
@@ -96,6 +157,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         // Ordenar por distancia
         Collections.sort(result);	        
 
+        // Mostrar
         ListView l=(ListView) this.findViewById(R.id.listado);
         l.setAdapter(new ResultadoAdapter(this,result));	    	
     }
@@ -104,11 +166,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     public void onLocationChanged(Location location) {
 		// Sólo hacer algo si la nueva ubicación es mejor que la actual
     	if (isBetterLocation(location, lBest)) {
-	    	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
-	    	if (dBuscaUbic.isShowing())
-	    		dBuscaUbic.dismiss();
-	    	else	    		
-	    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
 	    		
 			// Actualizar precisión
 	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
@@ -119,7 +176,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	
 	    	lBest=location;
 	        
-	    	actualizarListado();
+    		actualizarListado();
         
 		} else {
 	    	//Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
@@ -206,14 +263,13 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    }
 	}	
 	// Clase privada para recuperar la lista de estaciones en segundo plano
-	// TODO: Mover a BiciPalmaActivity, tiene más sentido allí. Pasar luego los datos con un Bundle
 	// TODO: Mostrar un ProgressDialog con una barra de progreso
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
 
 		Context c;
 		
 	    public RecuperarEstacionesTask(Context c) {
-	    	this.c=c;	    	
+	    	this.c=c;
 	    }
 	    
 	    @Override
@@ -224,67 +280,73 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    // Cuando acabe de descargar, activar la búsqueda de ubicación 
 	    protected void onPostExecute(ArrayList<Estacion> result) {
 	    	// Cerrar diálogo y guardar resultados
-	    	dRecuperaEst.dismiss();
 	    	estaciones=result;
+	    	
+	    	dRecuperaEst.setTitle(R.string.buscandoubica);
+	    	
+	    	actualizarListado();
 
-	    	dBuscaUbic=ProgressDialog.show(c, "",getString(R.string.buscandoubica),true,true);
-//	        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
-	        locationManager = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
-
-	        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
-	        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-	        	mUbic=LocationManager.GPS_PROVIDER;
-	        else {
-	        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
-	        	mUbic=LocationManager.NETWORK_PROVIDER;
-	        }
-	        // Activar búsqueda de ubicación        
-	        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) c);        
-
-	    	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
-	        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
-	    	//tIni=new Date().getTime();
-	        tIni=System.currentTimeMillis();
 	    }
 
 		@Override
 		protected ArrayList<Estacion> doInBackground(Void... arg0) {
 	    	JSONArray json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
 	    	
-	    	// Extraer estaciones del JSON
-	    	// TODO: Guardarlas en data
-	        // TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
-	        // TODO: Si la copia local es antigua, actualizarla
-	    	ArrayList<Estacion> est=new ArrayList<Estacion>();
-	    	for(int i=0;i<json.length();i++) {
-	    		try {
-					String nombre=json.getJSONObject(i).getString("alia");
-					Location pos=new Location("network");
-					pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
-					pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
-	    			Estacion e=new Estacion(nombre,pos);
-	    			String html=json.getJSONObject(i).getString("paramsHtml");
-	    			int pos2=html.indexOf("Bicis Libres:</span>")+"Bicis Libres:</span>".length();
-	    			if (pos2>0)
-	    				e.setBicisLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
-	    			else
-	    				e.setBicisLibres(0);
-	    			pos2=html.indexOf("Anclajes Libres:</span>")+"Anclajes Libres:</span>".length();
-	    			if (pos2>0)
-	    				e.setAnclajesLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
-	    			else
-	    				e.setAnclajesLibres(0);
-	    			est.add(e);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-	    	}
-	    	return est;
+	    	return leerFicheroEstaciones(json);
 		}
 	 }
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
 		  if (key.equals("ocultarVaciosPref"))
 			  actualizarListado(); 		
+	}
+
+	/**
+	 * @param json
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
+	private ArrayList<Estacion> leerFicheroEstaciones(JSONArray json) {
+		// Extraer estaciones del JSON
+		// TODO: Guardarlas en data
+		// TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
+		// TODO: Si la copia local es antigua, actualizarla
+		ArrayList<Estacion> est=new ArrayList<Estacion>();
+		for(int i=0;i<json.length();i++) {
+			try {
+				String nombre=json.getJSONObject(i).getString("alia");
+				Location pos=new Location("network");
+				pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
+				pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
+				Estacion e=new Estacion(nombre,pos);
+				String html=json.getJSONObject(i).getString("paramsHtml");
+				int pos2=html.indexOf("Bicis Libres:</span>")+"Bicis Libres:</span>".length();
+				if (pos2>0)
+					e.setBicisLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+				else
+					e.setBicisLibres(0);
+				pos2=html.indexOf("Anclajes Libres:</span>")+"Anclajes Libres:</span>".length();
+				if (pos2>0)
+					e.setAnclajesLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+				else
+					e.setAnclajesLibres(0);
+				est.add(e);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		// Escribir el JSON a disco para acelerar futuros accesos
+		try {
+			FileOutputStream fos=openFileOutput("estaciones.json", Context.MODE_PRIVATE);
+			fos.write(json.toString().getBytes());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return est;
 	}	
 	
 }
