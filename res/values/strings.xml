@@ -7,7 +7,7 @@
     <string name="app_name">BuscaBici</string>
     <string name="lbicislibres">Bicis</string>
     <string name="lanclajeslibres">Anclajes libres</string>
-    <string name="recuperandolista">Recuperando lista de estaciones y calculando ubicación</string>    
+    <string name="recuperandolista">Recuperando lista de estaciones…</string>    
         
 
     <string-array name="estacions_bicipalma">
@@ -17,6 +17,7 @@
     </string-array>
     <string name="avisonogps">Usando posicionamiento por red. Active el GPS para mayor precisión</string>
     <string name="buscandoubica">Determinando ubicación…</string>
+    <string name="buscandoubicaylista">Recuperando lista de estaciones y calculando ubicación…</string>
     <string name="busco">Busco:</string>
     <string name="buscobici">Bici</string>
     <string name="buscoanclaje">Anclaje</string>
