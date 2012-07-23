@@ -57,6 +57,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
         
+        estaciones=new ArrayList<Estacion>();
+        
         // TODO: No volver a descargar en cambios de orientación
         // Leer las estaciones de disco si están disponibles
         try {
@@ -65,7 +67,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 				BufferedReader fis;
 				fis = new BufferedReader(new FileReader(f));
 				String s=fis.readLine();
-				leerFicheroEstaciones(new JSONArray(s));
+				fis.close();
+				estaciones=leerFicheroEstaciones(new JSONArray(s));
 				// Poner nº de bicis/anclajes a desconocido
 				for(int i=0;i<estaciones.size();i++) {
 					estaciones.get(i).setAnclajesLibres(-1);
@@ -83,7 +86,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	
         // Descargar las estaciones desde la web (en un thread aparte)
         // Cuando acabe, se activará la búsqueda de ubicación
-        estaciones=new ArrayList<Estacion>();
         descargaEstaciones=new RecuperarEstacionesTask(this);
         descargaEstaciones.execute();
         
@@ -167,6 +169,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		// Sólo hacer algo si la nueva ubicación es mejor que la actual
     	if (isBetterLocation(location, lBest)) {
 	    		
+    		dRecuperaEst.setTitle(R.string.buscandoubica);
 			// Actualizar precisión
 	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
 	    	if (location.hasAccuracy())
@@ -274,7 +277,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    
 	    @Override
 		protected void onPreExecute() {
-	    	 dRecuperaEst = ProgressDialog.show(c, "", getString(R.string.recuperandolista),true,true);
+	    	 dRecuperaEst = ProgressDialog.show(c, "", getString(R.string.buscandoubicaylista),true,true);
 	    }
 		
 	    // Cuando acabe de descargar, activar la búsqueda de ubicación 
@@ -338,6 +341,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		try {
 			FileOutputStream fos=openFileOutput("estaciones.json", Context.MODE_PRIVATE);
 			fos.write(json.toString().getBytes());
+			fos.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
