@@ -7,7 +7,7 @@
     <string name="app_name">BuscaBici</string>
     <string name="lbicislibres">Bicis</string>
     <string name="lanclajeslibres">Anclajes libres</string>
-    <string name="recuperandolista">Recuperando lista de estaciones…</string>    
+    <string name="recuperandolista">Recuperando estado de estaciones…</string>    
         
 
     <string-array name="estacions_bicipalma">
@@ -24,4 +24,5 @@
     <string name="prefocultarvacios">Ocultar vacíos</string>
     <string name="prefocultarvacios_sum">Ocultar estaciones sin bicis/anclajes disponibles</string>
     <string name="menuPreferencias">Preferencias</string>
+    <string name="actualizar">Actualizar</string>
 </resources>

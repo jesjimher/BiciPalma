@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,8 +63,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         // TODO: No volver a descargar en cambios de orientación
         // Leer las estaciones de disco si están disponibles
         try {
-			File f=new File("estaciones.json");
+			File f=new File(getFilesDir(),"estaciones.json");
 			if (f.exists()) {
+//		        Toast.makeText(getApplicationContext(), "Usando fichero", Toast.LENGTH_SHORT).show();
 				BufferedReader fis;
 				fis = new BufferedReader(new FileReader(f));
 				String s=fis.readLine();
@@ -85,7 +87,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		}
         	
         // Descargar las estaciones desde la web (en un thread aparte)
-        // Cuando acabe, se activará la búsqueda de ubicación
         descargaEstaciones=new RecuperarEstacionesTask(this);
         descargaEstaciones.execute();
         
@@ -137,8 +138,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     	// Ocultar el diálogo de búsqueda de ubicación si se estaba visualizando
     	if (dRecuperaEst.isShowing())
     		dRecuperaEst.dismiss();
-    	else	    		
-    		Toast.makeText(getApplicationContext(), "Actualizando resultados", Toast.LENGTH_SHORT).show();
 
     	// Mirar si está activa la opción de ocultar estaciones vacías
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -169,7 +168,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		// Sólo hacer algo si la nueva ubicación es mejor que la actual
     	if (isBetterLocation(location, lBest)) {
 	    		
-    		dRecuperaEst.setTitle(R.string.buscandoubica);
+//          Toast.makeText(getApplicationContext(), "Ubicación encontrada", Toast.LENGTH_SHORT).show();
+          	dRecuperaEst.setMessage(getString(R.string.recuperandolista));
 			// Actualizar precisión
 	    	TextView pre=(TextView) this.findViewById(R.id.precisionNum);
 	    	if (location.hasAccuracy())
@@ -261,6 +261,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    	startActivity(settingsActivity);
 	        prefs.registerOnSharedPreferenceChangeListener(this);
 	        return true;
+	    case R.id.actualizar:
+	        Toast.makeText(getApplicationContext(), getString(R.string.recuperandolista), Toast.LENGTH_SHORT).show();
+	        descargaEstaciones=new RecuperarEstacionesTask(this);
+	        descargaEstaciones.execute();
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -277,17 +282,40 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    
 	    @Override
 		protected void onPreExecute() {
-	    	 dRecuperaEst = ProgressDialog.show(c, "", getString(R.string.buscandoubicaylista),true,true);
+	    	int mensaje;
+	    	if (lBest==null)
+	    		mensaje=R.string.buscandoubicaylista;
+	    	else
+	    		mensaje=R.string.recuperandolista;
+    		dRecuperaEst = ProgressDialog.show(c, "", getString(mensaje),true,true);
+    		// Si ya tenemos las estaciones cacheadas, cambiar el texto
+	    	if (estaciones.size()>0) {
+	    		if (lBest==null)
+	    			dRecuperaEst.setMessage(getText(R.string.buscandoubica));
+	    		else
+	    			dRecuperaEst.dismiss();
+	    	}
+	    	
+	    	ProgressBar pb=(ProgressBar) findViewById(R.id.progreso);
+	    	pb.setIndeterminate(true);
+	    	pb.setVisibility(View.VISIBLE);
 	    }
 		
 	    // Cuando acabe de descargar, activar la búsqueda de ubicación 
 	    protected void onPostExecute(ArrayList<Estacion> result) {
+//	          Toast.makeText(getApplicationContext(), "Descargadas estaciones", Toast.LENGTH_SHORT).show();
 	    	// Cerrar diálogo y guardar resultados
 	    	estaciones=result;
 	    	
-	    	dRecuperaEst.setTitle(R.string.buscandoubica);
+	    	if (lBest==null)
+	    		dRecuperaEst.setMessage(getString(R.string.buscandoubica));
+	    	else
+	    		dRecuperaEst.dismiss();
 	    	
 	    	actualizarListado();
+
+	    	ProgressBar pb=(ProgressBar) findViewById(R.id.progreso);
+	    	pb.setVisibility(View.INVISIBLE);
 
 	    }
 
@@ -324,12 +352,12 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 				String html=json.getJSONObject(i).getString("paramsHtml");
 				int pos2=html.indexOf("Bicis Libres:</span>")+"Bicis Libres:</span>".length();
 				if (pos2>0)
-					e.setBicisLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+					e.setBicisLibres(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
 				else
 					e.setBicisLibres(0);
 				pos2=html.indexOf("Anclajes Libres:</span>")+"Anclajes Libres:</span>".length();
 				if (pos2>0)
-					e.setAnclajesLibres(Long.valueOf(html.substring(pos2, pos2+3).trim()));
+					e.setAnclajesLibres(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
 				else
 					e.setAnclajesLibres(0);
 				est.add(e);

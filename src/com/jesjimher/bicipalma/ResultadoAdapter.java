@@ -51,13 +51,21 @@ public class ResultadoAdapter extends BaseAdapter {
   
 		holder.txtNombre.setText(listado.get(position).getEstacion().getNombre());
 		holder.txtDistancia.setText(String.format("%.2f km",listado.get(position).getDist()/1000));
-		holder.txtBicisLibres.setText(String.format("%s: %d",this.c.getString(R.string.lbicislibres),listado.get(position).getEstacion().getBicisLibres()));
+		int bLibres=listado.get(position).getEstacion().getBicisLibres();
+		if (bLibres>=0)
+			holder.txtBicisLibres.setText(String.format("%s: %d",this.c.getString(R.string.lbicislibres),bLibres));
+		else
+			holder.txtBicisLibres.setText(String.format("%s: ?",this.c.getString(R.string.lbicislibres)));
 		if (listado.get(position).getEstacion().getBicisLibres()==0) 
 			holder.txtBicisLibres.setTextColor(android.graphics.Color.RED);
 		else
 			holder.txtBicisLibres.setTextColor(holder.txtNombre.getCurrentTextColor());
 			
-		holder.txtAnclajesLibres.setText(String.format("%s: %d",this.c.getString(R.string.lanclajeslibres),listado.get(position).getEstacion().getAnclajesLibres()));
+		int aLibres=listado.get(position).getEstacion().getAnclajesLibres();
+		if (aLibres>=0)
+			holder.txtAnclajesLibres.setText(String.format("%s: %d",this.c.getString(R.string.lanclajeslibres),aLibres));
+		else
+			holder.txtAnclajesLibres.setText(String.format("%s: ?",this.c.getString(R.string.lanclajeslibres)));
 		if (listado.get(position).getEstacion().getAnclajesLibres()==0) 
 			holder.txtAnclajesLibres.setTextColor(android.graphics.Color.RED);
 		else

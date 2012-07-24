@@ -6,7 +6,8 @@ public class Estacion {
 	String nombre;
 	Location loc;
 	
-	Long bicisLibres,anclajesLibres;
+	int bicisLibres;
+	int anclajesLibres;
 	
 	public Estacion(String nombre,Location loc) {
 		this.nombre=nombre;
@@ -28,16 +29,16 @@ public class Estacion {
 		this.nombre = nombre;
 	}
 
-	public Long getBicisLibres() {
+	public int getBicisLibres() {
 		return bicisLibres;
 	}
-	public void setBicisLibres(long bicisLibres) {
+	public void setBicisLibres(int bicisLibres) {
 		this.bicisLibres = bicisLibres;
 	}
-	public Long getAnclajesLibres() {
+	public int getAnclajesLibres() {
 		return anclajesLibres;
 	}
-	public void setAnclajesLibres(long anclajesLibres) {
+	public void setAnclajesLibres(int anclajesLibres) {
 		this.anclajesLibres = anclajesLibres;
 	}
 }
