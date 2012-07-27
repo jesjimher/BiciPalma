@@ -338,9 +338,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	 */
 	private ArrayList<Estacion> leerFicheroEstaciones(JSONArray json) {
 		// Extraer estaciones del JSON
-		// TODO: Guardarlas en data
-		// TODO: Si falla, mostrar un mensaje y usar la copia local, sin nº de bicis libres
-		// TODO: Si la copia local es antigua, actualizarla
 		ArrayList<Estacion> est=new ArrayList<Estacion>();
 		for(int i=0;i<json.length();i++) {
 			try {
@@ -367,9 +364,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		}
 		// Escribir el JSON a disco para acelerar futuros accesos
 		try {
-			FileOutputStream fos=openFileOutput("estaciones.json", Context.MODE_PRIVATE);
-			fos.write(json.toString().getBytes());
-			fos.close();
+			if (est.size()>0) {
+				FileOutputStream fos=openFileOutput("estaciones.json", Context.MODE_PRIVATE);
+				fos.write(json.toString().getBytes());
+				fos.close();
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
