@@ -25,4 +25,6 @@
     <string name="prefocultarvacios_sum">Amagar estacions sense bicis/ancoratges disponibles</string>
     <string name="menuPreferencias">Preferències</string>
     <string name="actualizar">Actualitzar</string>
+    <string name="precisiondesconocida">Desconeguda</string>
+    <string name="precisionubicacion">Precisió de l\'ubicació:</string>
 </resources>

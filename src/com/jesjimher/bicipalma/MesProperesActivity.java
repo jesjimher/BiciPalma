@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -72,9 +74,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 				fis.close();
 				estaciones=leerFicheroEstaciones(new JSONArray(s));
 				// Poner nº de bicis/anclajes a desconocido
-				for(int i=0;i<estaciones.size();i++) {
-					estaciones.get(i).setAnclajesLibres(-1);
-					estaciones.get(i).setBicisLibres(-1);
+				for(Estacion e:estaciones) {
+					e.setAnclajesLibres(-1);
+					e.setBicisLibres(-1);
 				}
 				actualizarListado();
 			}
