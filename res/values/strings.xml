@@ -27,4 +27,6 @@
     <string name="actualizar">Actualizar</string>
     <string name="precisiondesconocida">Desconocida</string>
     <string name="precisionubicacion">Precisión de la ubicación:</string>
+    <string name="prefactivarwifi">Auto-activar Wifi</string>
+    <string name="prefactivarwifi_sum">Activa el wifi al iniciar (mejora la precisión de la ubicación)</string>
 </resources>

@@ -23,6 +23,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -54,11 +55,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	
 	private RecuperarEstacionesTask descargaEstaciones;
 	
+	private boolean estatWifi=false;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mesproperes);
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        
+        // Si s'ha d'activar el wifi en inici, fer-ho
+    	WifiManager wm=(WifiManager) this.getSystemService(Context.WIFI_SERVICE);        	
+    	// Guardar el estado actual para restaurarlo al salir
+    	this.estatWifi=wm.isWifiEnabled();
+        if (prefs.getBoolean("activarWifiPref", false)) 
+        	wm.setWifiEnabled(true);        	
         
         estaciones=new ArrayList<Estacion>();
         
@@ -124,9 +135,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         		startActivity(new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri)));
 //        		Toast.makeText(getApplicationContext(), rb.getEstacion().getNombre(),Toast.LENGTH_SHORT).show();
         	}
-		});
-        
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		});        	
     }
         
     /**
@@ -228,7 +237,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 
     public void onProviderDisabled(String provider) {}
     
-    // Dejamos de buscar ubicación al salir
+    // Dejamos de buscar ubicación al salir y restauramos el wifi
     @Override
     public void onPause() {
     	if (locationManager!=null)
@@ -238,7 +247,36 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     		descargaEstaciones.cancel(true);
     		descargaEstaciones=null;
     	}
+    	
+		WifiManager wm=(WifiManager) getSystemService(Context.WIFI_SERVICE);
+		wm.setWifiEnabled(this.estatWifi);
+    	
     	super.onPause();
+    }
+    
+    // Reactivar wifi si es necesario
+    public void onResume() {
+    	// Reactivar suscripción a ubicaciones
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        	mUbic=LocationManager.GPS_PROVIDER;
+        else 
+        	mUbic=LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) this);        
+
+        // Reactivar wifi si es necesario
+    	if (prefs.getBoolean("activarWifiPref", false)) {
+    		WifiManager wm=(WifiManager) getSystemService(Context.WIFI_SERVICE);
+    		wm.setWifiEnabled(true);
+    	}
+    	
+    	super.onResume();
+    }
+    
+    protected void OnStop() {
+    	super.onStop();    	
     }
 
 	public void onDismiss(DialogInterface arg0) {
@@ -331,6 +369,13 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
 		  if (key.equals("ocultarVaciosPref"))
 			  actualizarListado(); 		
+		  
+		  if (key.equals("activarWifiPref")) {
+			  if (sharedPreferences.getBoolean("activarWifiPref", false)) {
+				  WifiManager wm=(WifiManager) getSystemService(Context.WIFI_SERVICE);
+				  wm.setWifiEnabled(true);
+			  }
+		  }
 	}
 
 	/**
