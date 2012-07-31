@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hola holita</string>
+    <string name="mesproperes">Estaciones próximas</string>
+    <string name="mapaestacions">Mapa de estaciones</string>
+    <string name="otra">Otra cadena</string>
+    <string name="app_name">BuscaBici</string>
+    <string name="lbicislibres">Bicis</string>
+    <string name="lanclajeslibres">Anclajes libres</string>
+    <string name="recuperandolista">Recuperando estado de estaciones…</string>    
+        
+
+    <string-array name="estacions_bicipalma">
+        <item>Pça Espanya</item>
+        <item>Blanquerna</item>
+        <item>Cort</item>
+    </string-array>
+    <string name="avisonogps">Usando posicionamiento por red. Active el GPS para mayor precisión</string>
+    <string name="buscandoubica">Determinando ubicación…</string>
+    <string name="buscandoubicaylista">Recuperando lista de estaciones y calculando ubicación…</string>
+    <string name="busco">Busco:</string>
+    <string name="buscobici">Bici</string>
+    <string name="buscoanclaje">Anclaje</string>
+    <string name="prefocultarvacios">Ocultar vacíos</string>
+    <string name="prefocultarvacios_sum">Ocultar estaciones sin bicis/anclajes disponibles</string>
+    <string name="menuPreferencias">Preferencias</string>
+    <string name="actualizar">Actualizar</string>
+    <string name="precisiondesconocida">Desconocida</string>
+    <string name="precisionubicacion">Precisión de la ubicación:</string>
+    <string name="prefactivarwifi">Auto-activar Wifi</string>
+    <string name="prefactivarwifi_sum">Activa el wifi al iniciar (mejora la precisión de la ubicación)</string>
+</resources>
