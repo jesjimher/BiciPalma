@@ -102,6 +102,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
         	mUbic=LocationManager.NETWORK_PROVIDER;
         }
+        // Usar última ubicación conocida de red para empezar y recibir futuras actualizaciones
+        lBest=locationManager.getLastKnownLocation(mUbic);
         locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) this);        
 
     	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
