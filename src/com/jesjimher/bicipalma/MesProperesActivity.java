@@ -294,7 +294,8 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
+		//TODO: Estado del servicio
+		// Handle item selection
 	    switch (item.getItemId()) {
 	    case R.id.preferencias:
 	    	Intent settingsActivity = new Intent(getBaseContext(),PreferenciasActivity.class);
@@ -311,7 +312,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    }
 	}	
 	// Clase privada para recuperar la lista de estaciones en segundo plano
-	// TODO: Mostrar un ProgressDialog con una barra de progreso
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
 
 		Context c;
