@@ -17,7 +17,7 @@
     </string-array>
     <string name="avisonogps">Using network positioning. Enable GPS to achieve better precision</string>
     <string name="buscandoubica">Getting current location…</string>
-    <string name="buscandoubicaylista">Downloading station state and getting current location...</string>
+    <string name="buscandoubicaylista">Downloading station state and getting current location…</string>
     <string name="busco">I want:</string>
     <string name="buscobici">Bicycle</string>
     <string name="buscoanclaje">Anchor point</string>
@@ -29,4 +29,10 @@
     <string name="precisionubicacion">Location accuracy:</string>
     <string name="prefactivarwifi">Auto-enable Wifi</string>
     <string name="prefactivarwifi_sum">Enables wifi on init (better location accuracy)</string>
+    <string name="estadoservicio">Bicipalma statistics</string>
+    <string name="cerrar">Close</string>
+    <string formatted="false" name="estadisticasBicis">Bike total: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n</string>
+    <string formatted="false" name="estadisticasAnclajes">Anchor points: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n\n</string>
+    <string formatted="false" name="estadisticasVacias">Empty stations: %d/%d</string>
+    <string name="sinDescargaTodavia">Bicipalma station state is still downloading. Please wait…</string>
 </resources>

@@ -7,7 +7,10 @@ public class Estacion {
 	Location loc;
 	
 	int bicisLibres;
+	int bicisAveriadas;
 	int anclajesLibres;
+	int anclajesUsados;
+	int anclajesAveriados;
 	
 	public Estacion(String nombre,Location loc) {
 		this.nombre=nombre;
@@ -40,5 +43,29 @@ public class Estacion {
 	}
 	public void setAnclajesLibres(int anclajesLibres) {
 		this.anclajesLibres = anclajesLibres;
+	}
+
+	public int getBicisAveriadas() {
+		return bicisAveriadas;
+	}
+
+	public void setBicisAveriadas(int bicisAveriadas) {
+		this.bicisAveriadas = bicisAveriadas;
+	}
+
+	public int getAnclajesUsados() {
+		return anclajesUsados;
+	}
+
+	public void setAnclajesUsados(int anclajesUsados) {
+		this.anclajesUsados = anclajesUsados;
+	}
+
+	public int getAnclajesAveriados() {
+		return anclajesAveriados;
+	}
+
+	public void setAnclajesAveriados(int anclajesAveriados) {
+		this.anclajesAveriados = anclajesAveriados;
 	}
 }

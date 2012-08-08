@@ -29,4 +29,10 @@
     <string name="precisionubicacion">Precisión de la ubicación:</string>
     <string name="prefactivarwifi">Auto-activar Wifi</string>
     <string name="prefactivarwifi_sum">Activa el wifi al iniciar (mejora la precisión de la ubicación)</string>
+    <string name="estadoservicio">Estadísticas de Bicipalma</string>
+    <string name="cerrar">Cerrar</string>
+    <string formatted="false" name="estadisticasBicis">Total bicis: %d\n  En uso: %d (%.2f %%)\n  Libres: %d (%.2f %%)\n  Averiadas: %d (%.2f %%)\n</string>
+    <string formatted="false" name="estadisticasAnclajes">Total anclajes: %d\n  En uso: %d (%.2f %%)\n  Libres: %d (%.2f %%)\n  Averiados: %d (%.2f %%)\n\n</string>
+    <string formatted="false" name="estadisticasVacias">Estaciones sin bicis: %d/%d</string>
+    <string name="sinDescargaTodavia">Todavía no se ha descargado el estado de las estaciones. Por favor espere.</string>
 </resources>

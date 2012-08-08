@@ -11,9 +11,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -307,6 +306,70 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        descargaEstaciones=new RecuperarEstacionesTask(this);
 	        descargaEstaciones.execute();
 	    	return true;
+	    case R.id.estado:    	
+	    	int bTot=0;
+	    	int bAver=0;
+	    	int aAver=0;
+	    	int bLib=0;
+	    	int aLib=0;
+	    	int noBicis=0;
+	    	
+	    	for(Estacion e:estaciones) {
+	    		bTot+=e.getAnclajesAveriados()+e.getAnclajesLibres()+e.getAnclajesUsados();
+	    		bAver+=e.getBicisAveriadas();
+	    		aAver+=e.getAnclajesAveriados();
+	    		bLib+=e.getBicisLibres();
+	    		aLib+=e.getAnclajesLibres();
+	    		if (e.getBicisLibres()==0)
+	    			noBicis++;
+	    	}
+	    	AlertDialog.Builder builder=new AlertDialog.Builder(this);
+	    	if (bLib<0) {
+		    	builder.setMessage(R.string.sinDescargaTodavia)
+		    		   .setCancelable(true)
+		    		   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
+						
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();						
+						}
+					});
+		    	AlertDialog alert=builder.create();
+		    	alert.show();
+		    	return true;
+	    	}
+	    	String mensBicis=String.format(getString(R.string.estadisticasBicis),
+	    			bTot,
+	    			bTot-(bLib+bAver),
+	    			100*(1-bLib/(0.0+bTot-bAver)),
+	    			bLib,
+	    			100*bLib/(0.0+bTot-bAver),
+	    			bAver,
+	    			100*bAver/Double.valueOf(bTot)
+	    			);
+	    	String mensAnclajes=String.format(getString(R.string.estadisticasAnclajes), 
+	    			bTot,
+	    			bTot-(aLib+aAver),
+	    			100*(1-aLib/(0.0+bTot-aAver)),
+	    			aLib,
+	    			100*aLib/(0.0+bTot-aAver),
+	    			aAver,
+	    			100*aAver/Double.valueOf(bTot)
+	    			);
+	    	
+	    	String mensVacias=String.format(getString(R.string.estadisticasVacias), noBicis,estaciones.size());
+	    	
+	    	builder.setMessage(mensBicis+mensAnclajes+mensVacias)
+	    		   .setTitle(R.string.estadoservicio)
+	    		   .setCancelable(true)
+	    		   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();						
+					}
+				});
+	    	AlertDialog alert=builder.create();
+	    	alert.show();
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -399,11 +462,26 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 					e.setBicisLibres(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
 				else
 					e.setBicisLibres(0);
+				pos2=html.indexOf("Bicis Averiadas:</span>")+"Bicis Averiadas:</span>".length();
+				if (pos2>0)
+					e.setBicisAveriadas(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
+				else
+					e.setBicisAveriadas(0);
 				pos2=html.indexOf("Anclajes Libres:</span>")+"Anclajes Libres:</span>".length();
 				if (pos2>0)
 					e.setAnclajesLibres(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
 				else
 					e.setAnclajesLibres(0);
+				pos2=html.indexOf("Anclajes Usados:</span>")+"Anclajes Usados:</span>".length();
+				if (pos2>0)
+					e.setAnclajesUsados(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
+				else
+					e.setAnclajesUsados(0);
+				pos2=html.indexOf("Anclajes Averiados:</span>")+"Anclajes Averiados:</span>".length();
+				if (pos2>0)
+					e.setAnclajesAveriados(Integer.valueOf(html.substring(pos2, pos2+3).trim()));
+				else
+					e.setAnclajesAveriados(0);
 				est.add(e);
 			} catch (JSONException e) {
 				e.printStackTrace();

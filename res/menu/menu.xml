@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/preferencias" android:title="@string/menuPreferencias" android:icon="@android:drawable/ic_menu_save"></item>
-    <item android:id="@+id/actualizar" android:title="@string/actualizar" android:icon="@drawable/ic_menu_refresh"></item>	
+    <item android:id="@+id/actualizar" android:title="@string/actualizar" android:icon="@drawable/ic_menu_refresh"></item>
+    <item android:id="@+id/preferencias" android:title="@string/menuPreferencias" android:icon="@android:drawable/ic_menu_preferences"></item>    
+    <item android:id="@+id/estado" android:title="@string/estadoservicio" android:icon="@android:drawable/ic_menu_info_details"></item>	
 </menu>
