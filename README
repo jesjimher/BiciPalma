@@ -1,6 +1,9 @@
 v1.2
 Mostrado estado del servicio
 Arreglado icono de preferencias
+Arreglado mal uso del GPS si se activaba con la aplicación iniciada
+Mejoras generales con el GPS
+Mejor consumo de batería en el posicionamiento
 
 v1.1
 Acelerado el posicionamiento utilizando la última posición conocida al iniciar

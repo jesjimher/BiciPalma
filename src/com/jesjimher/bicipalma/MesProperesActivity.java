@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -97,25 +98,20 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		}
         	
         // Descargar las estaciones desde la web (en un thread aparte)
+		// TODO: timeout si la web está caída
         descargaEstaciones=new RecuperarEstacionesTask(this);
         descargaEstaciones.execute();
         
-        // Activar búsqueda de ubicación
+        // Inicialmente se busca por red (más rápido)
  //    	dBuscaUbic=ProgressDialog.show(c, "",getString(R.string.buscandoubica),true,true);
 //        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mUbic=LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
 
-        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-        	mUbic=LocationManager.GPS_PROVIDER;
-        else {
-        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
-        	mUbic=LocationManager.NETWORK_PROVIDER;
-        }
         // Usar última ubicación conocida de red para empezar y recibir futuras actualizaciones
-        lBest=locationManager.getLastKnownLocation(mUbic);
-        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) this);        
-
+        lBest=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+     
     	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
         // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
     	//tIni=new Date().getTime();
@@ -136,6 +132,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	}
 		});        	
     }
+
+	/**
+	 * Activa la búsqueda de ubicación usando el mejor método disponible
+	 */
+	private void activarUbicacion() {
+		locationManager.removeUpdates(this);
+		// Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        	mUbic=LocationManager.GPS_PROVIDER;
+        else {
+        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
+        	mUbic=LocationManager.NETWORK_PROVIDER;
+        }
+        locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
+	}
         
     /**
      *	Actualiza el listado de estaciones 
@@ -193,7 +204,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         
 		} else {
 	    	//Toast.makeText(getApplicationContext(), "Ignorando ubicación chunga", Toast.LENGTH_SHORT).show();
-		}    
+		}
+    	// Si estamos en red y está el GPS activado, pasar a GPS
+    	// TODO: En API 9 se puede recibir un evento cuando se active el GPS. Investigar si se puede hacer con los modernos sin perder compatibilidad con API 8
+    	if ((mUbic.equals(LocationManager.NETWORK_PROVIDER)) && (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)))
+    		activarUbicacion();
     }
     
     /** Determines whether one Location reading is better than the current Location fix
@@ -230,13 +245,20 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
    }
 
 
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+   // Si el GPS deja de funcionar, pasar a modo red  
+   public void onStatusChanged(String provider, int status, Bundle extras) {
+       Toast.makeText(getApplicationContext(), "Cambio estado GPS", Toast.LENGTH_SHORT).show();
+    	if (provider.equals(LocationManager.GPS_PROVIDER)) {
+    		if (status!=LocationProvider.AVAILABLE)
+    			activarUbicacion();
+    	}    	    	
+    }
 
-    public void onProviderEnabled(String provider) {}
-
-    public void onProviderDisabled(String provider) {}
+	public void onProviderEnabled(String provider) {}
     
-    // Dejamos de buscar ubicación al salir y restauramos el wifi
+	public void onProviderDisabled(String provider) {}
+
+	// Dejamos de buscar ubicación al salir y restauramos el wifi
     @Override
     public void onPause() {
     	if (locationManager!=null)
@@ -256,14 +278,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     // Reactivar wifi si es necesario
     public void onResume() {
     	// Reactivar suscripción a ubicaciones
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // Comprobar si se ha activado o no el GPS, y decidir el método para ubicarse
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-        	mUbic=LocationManager.GPS_PROVIDER;
-        else 
-        	mUbic=LocationManager.NETWORK_PROVIDER;
-        locationManager.requestLocationUpdates(mUbic, 0, 0, (LocationListener) this);        
+    	activarUbicacion();
 
         // Reactivar wifi si es necesario
     	if (prefs.getBoolean("activarWifiPref", false)) {
@@ -303,76 +318,85 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        return true;
 	    case R.id.actualizar:
 	        Toast.makeText(getApplicationContext(), getString(R.string.recuperandolista), Toast.LENGTH_SHORT).show();
+	        activarUbicacion();
 	        descargaEstaciones=new RecuperarEstacionesTask(this);
 	        descargaEstaciones.execute();
 	    	return true;
 	    case R.id.estado:    	
-	    	int bTot=0;
-	    	int bAver=0;
-	    	int aAver=0;
-	    	int bLib=0;
-	    	int aLib=0;
-	    	int noBicis=0;
-	    	
-	    	for(Estacion e:estaciones) {
-	    		bTot+=e.getAnclajesAveriados()+e.getAnclajesLibres()+e.getAnclajesUsados();
-	    		bAver+=e.getBicisAveriadas();
-	    		aAver+=e.getAnclajesAveriados();
-	    		bLib+=e.getBicisLibres();
-	    		aLib+=e.getAnclajesLibres();
-	    		if (e.getBicisLibres()==0)
-	    			noBicis++;
-	    	}
-	    	AlertDialog.Builder builder=new AlertDialog.Builder(this);
-	    	if (bLib<0) {
-		    	builder.setMessage(R.string.sinDescargaTodavia)
-		    		   .setCancelable(true)
-		    		   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
-						
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();						
-						}
-					});
-		    	AlertDialog alert=builder.create();
-		    	alert.show();
-		    	return true;
-	    	}
-	    	String mensBicis=String.format(getString(R.string.estadisticasBicis),
-	    			bTot,
-	    			bTot-(bLib+bAver),
-	    			100*(1-bLib/(0.0+bTot-bAver)),
-	    			bLib,
-	    			100*bLib/(0.0+bTot-bAver),
-	    			bAver,
-	    			100*bAver/Double.valueOf(bTot)
-	    			);
-	    	String mensAnclajes=String.format(getString(R.string.estadisticasAnclajes), 
-	    			bTot,
-	    			bTot-(aLib+aAver),
-	    			100*(1-aLib/(0.0+bTot-aAver)),
-	    			aLib,
-	    			100*aLib/(0.0+bTot-aAver),
-	    			aAver,
-	    			100*aAver/Double.valueOf(bTot)
-	    			);
-	    	
-	    	String mensVacias=String.format(getString(R.string.estadisticasVacias), noBicis,estaciones.size());
-	    	
-	    	builder.setMessage(mensBicis+mensAnclajes+mensVacias)
-	    		   .setTitle(R.string.estadoservicio)
-	    		   .setCancelable(true)
-	    		   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
+	    	mostrarEstadisticas();
+	    	return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+
+	/**
+	 * 
+	 */
+	private void mostrarEstadisticas() {
+		int bTot=0;
+		int bAver=0;
+		int aAver=0;
+		int bLib=0;
+		int aLib=0;
+		int noBicis=0;
+		
+		for(Estacion e:estaciones) {
+			bTot+=e.getAnclajesAveriados()+e.getAnclajesLibres()+e.getAnclajesUsados();
+			bAver+=e.getBicisAveriadas();
+			aAver+=e.getAnclajesAveriados();
+			bLib+=e.getBicisLibres();
+			aLib+=e.getAnclajesLibres();
+			if (e.getBicisLibres()==0)
+				noBicis++;
+		}
+		AlertDialog.Builder builder=new AlertDialog.Builder(this);
+		if (bLib<0) {
+			builder.setMessage(R.string.sinDescargaTodavia)
+				   .setCancelable(true)
+				   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
 					
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();						
 					}
 				});
-	    	AlertDialog alert=builder.create();
-	    	alert.show();
-	    	return true;
-	    default:
-	        return super.onOptionsItemSelected(item);
-	    }
+			AlertDialog alert=builder.create();
+			alert.show();
+		}
+		else {
+			String mensBicis=String.format(getString(R.string.estadisticasBicis),
+					bTot,
+					bTot-(bLib+bAver),
+					100*(1-bLib/(0.0+bTot-bAver)),
+					bLib,
+					100*bLib/(0.0+bTot-bAver),
+					bAver,
+					100*bAver/Double.valueOf(bTot)
+					);
+			String mensAnclajes=String.format(getString(R.string.estadisticasAnclajes), 
+					bTot,
+					bTot-(aLib+aAver),
+					100*(1-aLib/(0.0+bTot-aAver)),
+					aLib,
+					100*aLib/(0.0+bTot-aAver),
+					aAver,
+					100*aAver/Double.valueOf(bTot)
+					);
+			
+			String mensVacias=String.format(getString(R.string.estadisticasVacias), noBicis,estaciones.size());
+			
+			builder.setMessage(mensBicis+mensAnclajes+mensVacias)
+				   .setTitle(R.string.estadoservicio)
+				   .setCancelable(true)
+				   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();						
+					}
+				});
+			AlertDialog alert=builder.create();
+			alert.show();
+		}
 	}	
 	// Clase privada para recuperar la lista de estaciones en segundo plano
 	private class RecuperarEstacionesTask extends AsyncTask<Void, Void, ArrayList<Estacion>> {
@@ -501,7 +525,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		}
 		
 		return est;
-	}	
+	}
 	
 }
 
