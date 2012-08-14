@@ -142,7 +142,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
         	mUbic=LocationManager.GPS_PROVIDER;
         else {
-        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
+//        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
         	mUbic=LocationManager.NETWORK_PROVIDER;
         }
         locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
@@ -323,7 +323,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        descargaEstaciones.execute();
 	    	return true;
 	    case R.id.estado:    	
-	    	mostrarEstadisticas();
+//	    	mostrarEstadisticas();
+	    	Intent i=new Intent(this,MapaActivity.class);
+	    	startActivity(i);
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
