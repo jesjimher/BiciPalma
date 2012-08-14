@@ -35,4 +35,6 @@
     <string formatted="false" name="estadisticasAnclajes">Total anclajes: %d\n  En uso: %d (%.2f %%)\n  Libres: %d (%.2f %%)\n  Averiados: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Estaciones sin bicis: %d/%d</string>
     <string name="sinDescargaTodavia">Todavía no se ha descargado el estado de las estaciones. Por favor espere.</string>
+    <string name="errorconexion">No se ha podido descargar el estado de las estaciones. Parece que la web de Bicipalma tiene problemas…</string>
+    <string name="error">Error</string>
 </resources>

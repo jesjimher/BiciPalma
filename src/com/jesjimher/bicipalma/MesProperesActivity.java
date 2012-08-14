@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -49,8 +50,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	private String mUbic;
 	private SharedPreferences prefs;
 	
-	private static final int DIEZ_SEGS=10*1000;
-	
 	private ArrayList<Estacion> estaciones;
 	
 	private RecuperarEstacionesTask descargaEstaciones;
@@ -75,22 +74,24 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         
         // TODO: No volver a descargar en cambios de orientación
         // Leer las estaciones de disco si están disponibles
+        // Se busca primero una copia previa, y si no hay (primera ejecución) se usa la estática        
         try {
+        	BufferedReader fis;
 			File f=new File(getFilesDir(),"estaciones.json");
-			if (f.exists()) {
-//		        Toast.makeText(getApplicationContext(), "Usando fichero", Toast.LENGTH_SHORT).show();
-				BufferedReader fis;
-				fis = new BufferedReader(new FileReader(f));
-				String s=fis.readLine();
-				fis.close();
-				estaciones=leerFicheroEstaciones(new JSONArray(s));
-				// Poner nº de bicis/anclajes a desconocido
-				for(Estacion e:estaciones) {
-					e.setAnclajesLibres(-1);
-					e.setBicisLibres(-1);
-				}
-				actualizarListado();
+			if (f.exists())
+				fis=new BufferedReader(new FileReader(f));
+			else
+				fis=new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.estaciones)));
+			
+			String s=fis.readLine();
+			fis.close();
+			estaciones=leerFicheroEstaciones(new JSONArray(s));
+			// Poner nº de bicis/anclajes a desconocido
+			for(Estacion e:estaciones) {
+				e.setAnclajesLibres(-1);
+				e.setBicisLibres(-1);
 			}
+			actualizarListado();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (JSONException e) {
@@ -142,7 +143,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
         	mUbic=LocationManager.GPS_PROVIDER;
         else {
-        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
+//        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
         	mUbic=LocationManager.NETWORK_PROVIDER;
         }
         locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
@@ -171,7 +172,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         while (i.hasNext()) {
         	Estacion e=(Estacion) i.next();
         	Location aux=e.getLoc();
-        	Double dist=new Double(lBest.distanceTo(aux));
+        	Double dist=Double.valueOf(lBest.distanceTo(aux));
         	if (!(ocultarVacios && (e.getBicisLibres()<=0)))
         		result.add(new ResultadoBusqueda(e,dist));
         }	        
@@ -351,6 +352,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 				noBicis++;
 		}
 		AlertDialog.Builder builder=new AlertDialog.Builder(this);
+		// Si el nº de bicis es negativo, es q aún no se han descargado los datos
 		if (bLib<0) {
 			builder.setMessage(R.string.sinDescargaTodavia)
 				   .setCancelable(true)
@@ -432,15 +434,30 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	    protected void onPostExecute(ArrayList<Estacion> result) {
 //	          Toast.makeText(getApplicationContext(), "Descargadas estaciones", Toast.LENGTH_SHORT).show();
 	    	// Cerrar diálogo y guardar resultados
-	    	estaciones=result;
+	    	if (result==null) {
+	    		AlertDialog.Builder builder=new AlertDialog.Builder(c);
+				builder.setMessage(R.string.errorconexion)
+				   .setCancelable(true)
+				   .setTitle(R.string.error)
+				   .setPositiveButton(R.string.cerrar, new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();						
+					}
+				});
+			AlertDialog alert=builder.create();
+			alert.show();
+	    	}
+	    	else {
+	    		estaciones=result;
+	    		actualizarListado();
+	    	}
 	    	
 	    	if (lBest==null)
 	    		dRecuperaEst.setMessage(getString(R.string.buscandoubica));
 	    	else
 	    		dRecuperaEst.dismiss();
 	    	
-	    	actualizarListado();
-
 	    	ProgressBar pb=(ProgressBar) findViewById(R.id.progreso);
 	    	pb.setVisibility(View.INVISIBLE);
 
@@ -450,7 +467,11 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		protected ArrayList<Estacion> doInBackground(Void... arg0) {
 	    	JSONArray json=BicipalmaJsonClient.connect("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
 	    	
-	    	return leerFicheroEstaciones(json);
+	    	if (json.length()>0)
+	    		return leerFicheroEstaciones(json);
+	    	else {	    		
+	    		return null;
+	    	}
 		}
 	 }
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {

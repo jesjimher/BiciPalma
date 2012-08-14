@@ -35,4 +35,6 @@
     <string formatted="false" name="estadisticasAnclajes">Anchor points: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Empty stations: %d/%d</string>
     <string name="sinDescargaTodavia">Bicipalma station state is still downloading. Please wait…</string>
+    <string name="errorconexion">Can\'t get station state. Bicipalma\'s site might be having problems...</string>
+    <string name="error">Error</string>
 </resources>
