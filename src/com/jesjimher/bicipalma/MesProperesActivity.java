@@ -528,10 +528,14 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		for(int i=0;i<json.length();i++) {
 			try {
 				String nombre=json.getJSONObject(i).getString("alia");
+				// Extraer el nº de estación y eliminarlo del nombre
+				int num=Integer.valueOf(nombre.substring(1,2));				
+				nombre=nombre.substring(5);
 				Location pos=new Location("network");
 				pos.setLatitude(json.getJSONObject(i).getDouble("realLat"));
 				pos.setLongitude(json.getJSONObject(i).getDouble("realLon"));
 				Estacion e=new Estacion(nombre,pos);
+				e.setNumEstacion(num);
 				String html=json.getJSONObject(i).getString("paramsHtml");
 				int pos2=html.indexOf("Bicis Libres:</span>")+"Bicis Libres:</span>".length();
 				if (pos2>0)

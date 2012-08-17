@@ -6,6 +6,7 @@ public class Estacion {
 	String nombre;
 	Location loc;
 	
+	int numEstacion;
 	int bicisLibres;
 	int bicisAveriadas;
 	int anclajesLibres;
@@ -67,5 +68,13 @@ public class Estacion {
 
 	public void setAnclajesAveriados(int anclajesAveriados) {
 		this.anclajesAveriados = anclajesAveriados;
+	}
+
+	public int getNumEstacion() {
+		return numEstacion;
+	}
+
+	public void setNumEstacion(int numEstacion) {
+		this.numEstacion = numEstacion;
 	}
 }
