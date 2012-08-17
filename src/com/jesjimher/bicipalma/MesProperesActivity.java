@@ -72,13 +72,12 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         
         estaciones=new ArrayList<Estacion>();
         
-        // TODO: No volver a descargar en cambios de orientación
         // Leer las estaciones de disco si están disponibles
         // Se busca primero una copia previa, y si no hay (primera ejecución) se usa la estática        
         try {
         	BufferedReader fis;
 			File f=new File(getFilesDir(),"estaciones.json");
-			if (f.exists())
+			if (f.exists() && (f.length()>1000))
 				fis=new BufferedReader(new FileReader(f));
 			else
 				fis=new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.estaciones)));
@@ -114,7 +113,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         lBest=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
      
     	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
-        // TODO: Crear un Timer que pare la búsqueda de ubicación cuando pase un tiempo máximo
     	//tIni=new Date().getTime();
         tIni=System.currentTimeMillis();
 
