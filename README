@@ -1,3 +1,7 @@
+v1.3.1
+Arreglado el cacheo de estaciones cuando el fichero estaba corrupto
+Aclarados algunos mensajes
+
 v1.3
 Añadido timeout a las conexiones para no quedarse colgado, y diálogo de error
 Añadida copia estática de las estaciones por si la web está caída
