@@ -70,35 +70,12 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         if (prefs.getBoolean("activarWifiPref", false)) 
         	wm.setWifiEnabled(true);        	
         
-        estaciones=new ArrayList<Estacion>();
-        
-        // Leer las estaciones de disco si están disponibles
-        // Se busca primero una copia previa, y si no hay (primera ejecución) se usa la estática        
-        try {
-        	BufferedReader fis;
-			File f=new File(getFilesDir(),"estaciones.json");
-			if (f.exists() && (f.length()>1000))
-				fis=new BufferedReader(new FileReader(f));
-			else
-				fis=new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.estaciones)));
-			
-			String s=fis.readLine();
-			fis.close();
-			estaciones=leerFicheroEstaciones(new JSONArray(s));
-			// Poner nº de bicis/anclajes a desconocido
-			for(Estacion e:estaciones) {
-				e.setAnclajesLibres(-1);
-				e.setBicisLibres(-1);
-			}
-			actualizarListado();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+        // Cargamos la versión cacheada de las estaciones
+        leerCacheEstaciones();
+
+        actualizarListado();
         	
-        // Descargar las estaciones desde la web (en un thread aparte)
-		// TODO: timeout si la web está caída
+        // Iniciamos la descarga de las estaciones y su estado desde la web (en un thread aparte)
         descargaEstaciones=new RecuperarEstacionesTask(this);
         descargaEstaciones.execute();
         
@@ -131,6 +108,63 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	}
 		});        	
     }
+
+	/**
+	 * Carga la versión estática de la lista de estaciones para acelerar el arranque
+	 * Puede ser la última descargada, o la que viene en el APK si no hay ninguna descargada 
+	 */
+	private void leerCacheEstaciones() {
+		estaciones=new ArrayList<Estacion>();
+        JSONArray js=null;
+        String s="";
+        
+        // Se busca primero una copia previa        
+        try {
+        	BufferedReader fis;
+			File f=new File(getFilesDir(),"estaciones.json");
+			if (f.exists()) {
+//	        	Toast.makeText(getApplicationContext(), "Leyendo estaciones cacheadas", Toast.LENGTH_SHORT).show();
+				
+				fis=new BufferedReader(new FileReader(f));			
+				s=fis.readLine();
+				fis.close();				
+				js=new JSONArray(s);
+				// Si no hay datos dar error aunque sea un JSON válido
+				if (js.length()==0) {
+//		        	Toast.makeText(getApplicationContext(), "JSON ok, longitud 0", Toast.LENGTH_SHORT).show();
+					js=null;
+				}
+			}
+		} catch (IOException e) {
+			js=null;
+		} 
+		catch (JSONException e) {
+			// Si no es un JSON válido anular
+//        	Toast.makeText(getApplicationContext(), "JSON no válido", Toast.LENGTH_SHORT).show();
+			js=null;
+		}
+			
+		// Si el fichero cacheado no era válido, leer la versión estática que incluye el APK
+		// Esta tiene que ir bien sí o sí
+		if (js==null) {
+//        	Toast.makeText(getApplicationContext(), "Leyendo estaciones raw", Toast.LENGTH_SHORT).show();
+			try {
+				BufferedReader fis=new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.estaciones)));
+				s=fis.readLine();
+				fis.close();
+				js=new JSONArray(s);
+			} catch (IOException ie) {}
+			catch (JSONException jse) {}			
+		}
+		
+		// Una vez leído el JSON, procesarlo
+		estaciones=leerFicheroEstaciones(js);
+		// Poner nº de bicis/anclajes a desconocido
+		for(Estacion e:estaciones) {
+			e.setAnclajesLibres(-1);
+			e.setBicisLibres(-1);
+		}
+	}
 
 	/**
 	 * Activa la búsqueda de ubicación usando el mejor método disponible
@@ -307,7 +341,6 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		//TODO: Estado del servicio
 		// Handle item selection
 	    switch (item.getItemId()) {
 	    case R.id.preferencias:
