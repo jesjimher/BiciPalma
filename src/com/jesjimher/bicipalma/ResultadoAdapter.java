@@ -50,6 +50,7 @@ public class ResultadoAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
   
+		//TODO: Retocar iconos para que el fondo sea mucho más claro, quedan muy feotes
 		holder.txtNombre.setText(listado.get(position).getEstacion().getNombre());
 		holder.txtDistancia.setText(String.format("%.2f km",listado.get(position).getDist()/1000));
 		int bLibres=listado.get(position).getEstacion().getBicisLibres();
