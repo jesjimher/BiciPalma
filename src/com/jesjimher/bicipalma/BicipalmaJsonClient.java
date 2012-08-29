@@ -10,6 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
@@ -27,8 +28,9 @@ public class BicipalmaJsonClient {
 			HttpGet hg=new HttpGet("http://83.36.51.60:8080/eTraffic3/Control?act=mp");
 			HttpClient hcli = new DefaultHttpClient();
 			HttpResponse resp=hcli.execute(hg);
-			// Con el JSESSIONID, conectar a la URL que recupera el JSON
 			String cookie=resp.getFirstHeader("Set-Cookie").getValue().split(";")[0];
+			resp.getEntity().consumeContent();
+			// Con el JSESSIONID, conectar a la URL que recupera el JSON
 			hg=new HttpGet("http://83.36.51.60:8080/eTraffic3/DataServer?ele=equ&type=401&li=2.6226425170898&ld=2.6837539672852&ln=39.588022779794&ls=39.555621694894&zoom=15&adm=N&mapId=1&lang=es");
 			hg.setHeader("Referer","http://83.36.51.60:8080/eTraffic3/Control?act=mp");
 			hg.addHeader("Cookie", cookie);
@@ -48,7 +50,10 @@ public class BicipalmaJsonClient {
 				
 				json=new JSONArray(result);			
 				instream.close();
-			}		 
+			}
+			resp.getEntity().consumeContent();
+
+		} catch (HttpResponseException e) {
 		} catch (ClientProtocolException e1) {
 			e1.printStackTrace();
 		} catch (IOException e1) {
