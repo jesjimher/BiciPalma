@@ -1,7 +1,9 @@
 package com.jesjimher.bicipalma;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,12 +12,14 @@ import android.support.v4.app.NavUtils;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
 public class MapaActivity extends MapActivity {
 
+	ArrayList<Estacion> estaciones;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,15 +27,31 @@ public class MapaActivity extends MapActivity {
 
         // Activar zoom
         MapView mapView = (MapView) findViewById(R.id.mapview);
-        mapView.setBuiltInZoomControls(true);    
+        mapView.setBuiltInZoomControls(true);
+        MapController mc=mapView.getController();
+        mc.setZoom(16);        
 
-        List<Overlay> mapOverlays = mapView.getOverlays();
-        Drawable drawable = this.getResources().getDrawable(R.drawable.buscabici);
-        EstacionesOverlay estoverlay = new EstacionesOverlay(drawable, this);
-        GeoPoint point = new GeoPoint(19240000,-99120000);
-        OverlayItem overlayitem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
-        estoverlay.addEstacion(overlayitem);
-        mapOverlays.add(estoverlay);
+        Intent i=getIntent();
+        GeoPoint point=null;
+        if (i.hasExtra("estaciones")) {
+        	estaciones=i.getExtras().getParcelableArrayList("estaciones");
+        
+	        List<Overlay> mapOverlays = mapView.getOverlays();
+	        Drawable drawable = this.getResources().getDrawable(R.drawable.buscabici);
+	        EstacionesOverlay estoverlay = new EstacionesOverlay(drawable, this);
+
+	        for (Estacion e:estaciones) {
+	        	point = new GeoPoint((int)(e.getLoc().getLatitude()*1E6),(int) (e.getLoc().getLongitude()*1E6));
+//	        	OverlayItem overlayitem = new OverlayItem(point, e.getNombre(), "Libres: "+e.getBicisLibres());
+	        	estoverlay.addEstacion(e,point);
+	        }
+	        mapOverlays.add(estoverlay);	        	
+	        
+	        int lat=(int) (i.getExtras().getDouble("latcentro")*1E6);
+	        int lon=(int) (i.getExtras().getDouble("longcentro")*1E6);
+	        GeoPoint gp=new GeoPoint(lat,lon);	        
+	        mc.animateTo(gp);
+        }
     }
 
     @Override

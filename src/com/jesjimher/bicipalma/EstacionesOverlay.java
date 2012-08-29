@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
@@ -33,10 +34,17 @@ public class EstacionesOverlay extends ItemizedOverlay {
 		return mOverlays.size();
 	}
 	
-	public void addEstacion(OverlayItem estacion) {
-	    mOverlays.add(estacion);
+	public void addEstacion(Estacion e,GeoPoint p) {		
+    	OverlayItem overlayitem = new OverlayItem(p, e.getNombre(), "Libres: "+e.getBicisLibres());
+    	Drawable d=mContext.getResources().getDrawable(R.drawable.buscabici);
+    	overlayitem.setMarker(boundCenterBottom(d));
+	    mOverlays.add(overlayitem);
 	    populate();
 	}	
+	
+	public void finEstaciones() {
+		populate();		
+	}
 
 	@Override
 	protected boolean onTap(int index) {

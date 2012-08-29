@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +41,7 @@ import android.widget.Toast;
 
 import com.jesjimher.bicipalma.ResultadoBusqueda;
 
-public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener {
+public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener,AdapterView.OnItemClickListener {
 	LocationManager locationManager;
 	Location lBest=null;
 	// Tiempo inicial de búsqueda de ubicación
@@ -121,16 +122,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         // TODO: Mirar si abrir GMaps externo o interno
         // TODO: Menú con clic largo para abrir en gmaps, navigation
         ListView lv=(ListView) findViewById(R.id.listado);
-        lv.setOnItemClickListener(new OnItemClickListener() {
-        	public void onItemClick(AdapterView<?> parent, View v,int position,long id) {
-        		ResultadoBusqueda rb=(ResultadoBusqueda) parent.getAdapter().getItem(position);
-        		// Más rápido en posicionar, pero no muestra pin
-//        		String uri="geo:"+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude();
-        		String uri="geo:0,0?q="+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude()+" ("+rb.getEstacion().getNombre()+")";
-        		startActivity(new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri)));
-//        		Toast.makeText(getApplicationContext(), rb.getEstacion().getNombre(),Toast.LENGTH_SHORT).show();
-        	}
-		});        	
+        lv.setOnItemClickListener((OnItemClickListener) this);
     }
 
 	/**
@@ -323,9 +315,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	        descargaEstaciones.execute();
 	    	return true;
 	    case R.id.estado:    	
-//	    	mostrarEstadisticas();
-	    	Intent i=new Intent(this,MapaActivity.class);
-	    	startActivity(i);
+	    	mostrarEstadisticas();
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -528,6 +518,21 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		
 		return est;
 	}
+
+	public void onItemClick(AdapterView<?> parent, View v,int position,long id) {
+		ResultadoBusqueda rb=(ResultadoBusqueda) parent.getAdapter().getItem(position);
+		// Más rápido en posicionar, pero no muestra pin
+//		String uri="geo:"+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude();
+/*		String uri="geo:0,0?q="+rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude()+" ("+rb.getEstacion().getNombre()+")";
+		startActivity(new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri)));*/
+		
+    	Intent i=new Intent(this,MapaActivity.class);
+    	i.putExtra("estaciones",estaciones);
+    	i.putExtra("latcentro", rb.getEstacion().getLoc().getLatitude());
+    	i.putExtra("longcentro", rb.getEstacion().getLoc().getLongitude());
+    	startActivity(i);
+	}
+
 	
 }
 
