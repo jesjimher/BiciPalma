@@ -33,4 +33,8 @@
 	 <string name="title_activity_mapa">Mapa de estaciones</string>
     <string name="errorconexion">No se ha podido descargar el estado de las estaciones (la web de Bicipalma no responde). Compruebe la conexión de red y/o vuelva a intentarlo más adelante</string>
     <string name="error">Error</string>
+    <string-array name="menu_contextual">
+        <item >Mostrar en mapa de estaciones</item>
+        <item >Mostrar cómo llegar</item>
+    </string-array>
 </resources>

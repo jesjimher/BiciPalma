@@ -23,6 +23,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -40,7 +42,7 @@ import android.widget.Toast;
 
 import com.jesjimher.bicipalma.ResultadoBusqueda;
 
-public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener,AdapterView.OnItemClickListener {
+public class MesProperesActivity extends Activity implements LocationListener,DialogInterface.OnDismissListener,SharedPreferences.OnSharedPreferenceChangeListener,AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener {
 	LocationManager locationManager;
 	Location lBest=null;
 	// Tiempo inicial de búsqueda de ubicación
@@ -92,11 +94,10 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     	//tIni=new Date().getTime();
         tIni=System.currentTimeMillis();
 
-        // Crear listener para abrir una estación en Google Maps al seleccionarla
-        // TODO: Mirar si abrir GMaps externo o interno
-        // TODO: Menú con clic largo para abrir en gmaps, navigation
+        // Crear listeners para mostrar estación en mapa, o abrir menú con clic largo
         ListView lv=(ListView) findViewById(R.id.listado);
         lv.setOnItemClickListener((OnItemClickListener) this);
+        lv.setOnItemLongClickListener((OnItemLongClickListener) this);
     }
 
 	/**
@@ -585,6 +586,36 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
     	i.putExtra("latcentro", rb.getEstacion().getLoc().getLatitude());
     	i.putExtra("longcentro", rb.getEstacion().getLoc().getLongitude());
     	startActivity(i);
+	}
+
+	// Con clic largo abrimos Google Maps con la ruta desde la posición actual
+	public boolean onItemLongClick(final AdapterView<?> parent, final View v, final int position,final long id) {
+		final CharSequence[] items=getResources().getTextArray(R.array.menu_contextual);
+		AlertDialog.Builder b=new AlertDialog.Builder(this);
+		final ResultadoBusqueda rb=(ResultadoBusqueda) parent.getAdapter().getItem(position);		
+		
+		b.setItems(items, new DialogInterface.OnClickListener() {
+    		public void onClick(DialogInterface dialog, int item) {
+    			dialog.dismiss();
+    			switch (item) {
+    			case 0:
+    				onItemClick(parent, v, position, id);
+    				break;
+    			case 1:
+    				//TODO: Pasar a GMaps la versión localizada de "Current location" para que haga él la búsqueda de origen
+    				String latlongactual=lBest.getLatitude()+","+lBest.getLongitude();
+    				String latlongdestino=rb.getEstacion().getLoc().getLatitude()+","+rb.getEstacion().getLoc().getLongitude();
+    				Intent intent = new Intent(android.content.Intent.ACTION_VIEW, 
+    						Uri.parse("http://maps.google.com/maps?saddr="+latlongactual+"&daddr="+latlongdestino));
+    				startActivity(intent);    				
+    				break;
+    			}
+    	    }
+    	});
+		AlertDialog alert=b.create();
+		alert.show();
+		
+		return true;
 	}
 
 	

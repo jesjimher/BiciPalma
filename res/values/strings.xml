@@ -28,9 +28,13 @@
     <string formatted="false" name="estadisticasAnclajes">Anchor points: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Empty stations: %d/%d</string>
     <string name="sinDescargaTodavia">Bicipalma station state is still downloading. Please wait…</string>
-	<string name="hello_world">Hello world!</string>
-	<string name="menu_settings">Settings</string>
-	<string name="title_activity_mapa">Stations map</string>
+	 <string name="hello_world">Hello world!</string>
+	 <string name="menu_settings">Settings</string>
+	 <string name="title_activity_mapa">Stations map</string>
     <string name="errorconexion">Bicipalma\'s site is not responding. Station state won\'t be available. Check network connection or refresh later</string>
     <string name="error">Error</string>
+    <string-array name="menu_contextual">
+        <item >Show in station map</item>
+        <item >Show directions</item>
+    </string-array>
 </resources>
