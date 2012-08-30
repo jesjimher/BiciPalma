@@ -1,8 +1,11 @@
 package com.jesjimher.bicipalma;
 
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Estacion {
+public class Estacion implements Parcelable {
+	private static final long serialVersionUID = 3302402589493000251L;
 	String nombre;
 	Location loc;
 	
@@ -77,4 +80,43 @@ public class Estacion {
 	public void setNumEstacion(int numEstacion) {
 		this.numEstacion = numEstacion;
 	}
+
+	public int describeContents() {
+		return 0;
+	}
+
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(nombre);
+		dest.writeInt(bicisLibres);
+		dest.writeInt(bicisAveriadas);
+		dest.writeInt(anclajesLibres);
+		dest.writeInt(anclajesUsados);
+		dest.writeInt(anclajesAveriados);
+		dest.writeDouble(loc.getLatitude());
+		dest.writeDouble(loc.getLongitude());	
+		dest.writeInt(numEstacion);
+	}
+	public static final Parcelable.Creator<Estacion> CREATOR
+    = new Parcelable.Creator<Estacion>() {
+		public Estacion createFromParcel(Parcel in) {
+		    return new Estacion(in);
+		}
+		
+		public Estacion[] newArray(int size) {
+		    return new Estacion[size];
+		}
+	};
+	
+	private Estacion(Parcel in) {
+		nombre=in.readString();
+		bicisLibres= in.readInt();
+		bicisAveriadas= in.readInt();
+		anclajesLibres= in.readInt();
+		anclajesUsados= in.readInt();
+		anclajesAveriados= in.readInt();
+		loc=new Location("network");
+		loc.setLatitude(in.readDouble());
+		loc.setLongitude(in.readDouble());	
+		numEstacion=in.readInt();
+	}	
 }
