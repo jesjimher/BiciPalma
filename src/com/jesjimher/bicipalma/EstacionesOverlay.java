@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
 public class EstacionesOverlay extends ItemizedOverlay {
@@ -35,9 +37,14 @@ public class EstacionesOverlay extends ItemizedOverlay {
 	}
 	
 	public void addEstacion(Estacion e,GeoPoint p) {		
-    	OverlayItem overlayitem = new OverlayItem(p, e.getNombre(), "Libres: "+e.getBicisLibres());
-    	Drawable d=mContext.getResources().getDrawable(R.drawable.buscabici);
-    	overlayitem.setMarker(boundCenterBottom(d));
+		String mensaje=String.format("%s: %d, %s: %d", mContext.getResources().getString(R.string.lbicislibres),e.getBicisLibres(),mContext.getResources().getString(R.string.lanclajeslibres),e.getAnclajesLibres());
+    	OverlayItem overlayitem = new OverlayItem(p, e.getNombre(), mensaje);
+    	Drawable d=mContext.getResources().getDrawable(R.drawable.estado_variable);
+    	d.setLevel(e.getBicisLibres()+1);
+    	int w=d.getIntrinsicWidth()/2;
+    	int h=d.getIntrinsicHeight()/2;
+    	d.setBounds(-w/2,-h/2,w/2,h/2);
+    	overlayitem.setMarker(d);
 	    mOverlays.add(overlayitem);
 	    populate();
 	}	
@@ -54,5 +61,11 @@ public class EstacionesOverlay extends ItemizedOverlay {
 	  dialog.setMessage(item.getSnippet());
 	  dialog.show();
 	  return true;
+	}
+	
+	// Eliminamos la sombra de los marcadores
+	@Override
+	public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+		super.draw(canvas, mapView, false);
 	}
 }
