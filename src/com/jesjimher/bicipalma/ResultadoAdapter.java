@@ -56,16 +56,14 @@ public class ResultadoAdapter extends BaseAdapter {
 		int bLibres=listado.get(position).getEstacion().getBicisLibres();
 		if (bLibres>=0) {
 			holder.txtBicisLibres.setText(String.format("%s: %d",this.c.getString(R.string.lbicislibres),bLibres));
-			holder.imgIcono.setImageDrawable(c.getResources().getDrawable(R.drawable.icono_verde));
+			holder.imgIcono.getDrawable().setLevel(bLibres+1);
 		}
 		else {
 			holder.txtBicisLibres.setText(String.format("%s: ?",this.c.getString(R.string.lbicislibres)));
-			holder.imgIcono.setImageDrawable(c.getResources().getDrawable(R.drawable.icono_gris));
+			holder.imgIcono.getDrawable().setLevel(0);			
 		}
-		if (listado.get(position).getEstacion().getBicisLibres()==0) { 
+		if (listado.get(position).getEstacion().getBicisLibres()==0) 
 			holder.txtBicisLibres.setTextColor(android.graphics.Color.RED);
-			holder.imgIcono.setImageDrawable(c.getResources().getDrawable(R.drawable.icono_rojo));
-		}
 		else
 			holder.txtBicisLibres.setTextColor(holder.txtNombre.getCurrentTextColor());
 			
