@@ -29,7 +29,7 @@ public class MapaActivity extends MapActivity {
         MapView mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
         MapController mc=mapView.getController();
-        mc.setZoom(16);        
+        mc.setZoom(17);     
 
         Intent i=getIntent();
         GeoPoint point=null;
@@ -56,7 +56,7 @@ public class MapaActivity extends MapActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.mapa, menu);
+//        getMenuInflater().inflate(R.menu.mapa, menu);
         return true;
     }
 
@@ -73,7 +73,6 @@ public class MapaActivity extends MapActivity {
 
 	@Override
 	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
