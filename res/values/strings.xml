@@ -8,11 +8,6 @@
     <string name="lbicislibres">Bicycles</string>
     <string name="lanclajeslibres">Anchor points</string>
     <string name="recuperandolista">Downloading station state…</string>    
-    <string-array name="estacions_bicipalma">
-        <item>Pça Espanya</item>
-        <item>Blanquerna</item>
-        <item>Cort</item>
-    </string-array>
     <string name="avisonogps">Using network positioning. Enable GPS to achieve better precision</string>
     <string name="buscandoubica">Getting current location…</string>
     <string name="buscandoubicaylista">Downloading station state and getting current location…</string>

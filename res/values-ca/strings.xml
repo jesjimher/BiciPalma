@@ -8,13 +8,6 @@
     <string name="lbicislibres">Bicis</string>
     <string name="lanclajeslibres">Ancoratges lliures</string>
     <string name="recuperandolista">Recuperant estat d\'estacions…</string>    
-        
-
-    <string-array name="estacions_bicipalma">
-        <item>Pça Espanya</item>
-        <item>Blanquerna</item>
-        <item>Cort</item>
-    </string-array>
     <string name="avisonogps">Emprant posicionament per xarxa. Activi el GPS per una major precisió</string>
     <string name="buscandoubica">Determinant ubicació…</string>
     <string name="buscandoubicaylista">Recuperant llista d\'estacions i calculant ubicació…</string>
@@ -35,6 +28,9 @@
     <string formatted="false" name="estadisticasAnclajes">Total ancoratges: %d\n  Ocupats: %d (%.2f %%)\n  Buits: %d (%.2f %%)\n  Avariats: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Estacions sense bicis: %d/%d</string>
     <string name="sinDescargaTodavia">Encara no s\'ha descarregat l\'estat de les estacions. Per favor esperi.</string>
+	 <string name="hello_world">Hola món</string>
+ 	 <string name="menu_settings">Preferències</string>
+	 <string name="title_activity_mapa">Mapa d\'estacions</string>
     <string name="errorconexion">No es pot descarregar l\'estat de les estacions (el web de Bicipalma no respon). Comprovi la connexió de xarxa i torni-ho a intentar més endavant</string>
     <string name="error">Error</string>
 </resources>
