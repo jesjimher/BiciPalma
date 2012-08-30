@@ -1,5 +1,8 @@
 v2.0
 Cambio de look visual para mejorar aspecto y visibilidad en exteriores
+Mapa interno para mostrar estaciones
+Mostrar ruta hasta una estación con clic largo
+Mejoras internas de rendimiento
 
 v1.3.1
 Arreglado el cacheo de estaciones cuando el fichero estaba corrupto
