@@ -62,7 +62,7 @@
          android:id="@+id/progreso"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         style="@android:style/Widget.ProgressBar.Small"
+         style="@android:style/Widget.ProgressBar.Small.Inverse"
          android:layout_marginRight="5dp" />
 		<TextView
 			android:id="@+id/precisionLabel"
