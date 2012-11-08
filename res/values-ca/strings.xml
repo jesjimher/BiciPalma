@@ -37,4 +37,5 @@
         <item >Mostrar al mapa d\'estacions</item>
         <item >Mostrar com arribar</item>
     </string-array>
+    <string name="estadoEstacion">Estado de la estación</string>
 </resources>

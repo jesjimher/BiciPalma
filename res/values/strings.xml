@@ -37,4 +37,5 @@
         <item >Show in station map</item>
         <item >Show directions</item>
     </string-array>
+    <string name="estadoEstacion">Station state</string>
 </resources>
