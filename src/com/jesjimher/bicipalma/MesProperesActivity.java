@@ -406,14 +406,9 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 			alert.show();
 		}
 		else {
-			String mensBicis=String.format(getString(R.string.estadisticasBicis),
-					bTot,
-					bTot-(bLib+bAver),
-					100*(1-bLib/(0.0+bTot-bAver)),
+			String mensBicis=String.format(getString(R.string.estadisticasBicis),					
 					bLib,
-					100*bLib/(0.0+bTot-bAver),
-					bAver,
-					100*bAver/Double.valueOf(bTot)
+					bAver
 					);
 			String mensAnclajes=String.format(getString(R.string.estadisticasAnclajes), 
 					bTot,

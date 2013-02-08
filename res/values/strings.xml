@@ -24,8 +24,8 @@
     <string name="prefactivarwifi_sum">Enables wifi on init (better location accuracy)</string>
     <string name="estadoservicio">Bicipalma statistics</string>
     <string name="cerrar">Close</string>
-    <string formatted="false" name="estadisticasBicis">Bike total: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n</string>
-    <string formatted="false" name="estadisticasAnclajes">Anchor points: %d\n  In use: %d (%.2f %%)\n  Available: %d (%.2f %%)\n  Broken: %d (%.2f %%)\n\n</string>
+    <string formatted="false" name="estadisticasBicis">Bike total:\n\tAvailable: %d\n\tBroken: %d\n\n</string>
+    <string formatted="false" name="estadisticasAnclajes">Anchor points: %d\n\tIn use: %d (%.2f %%)\n\tAvailable: %d (%.2f %%)\n\tBroken: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Empty stations: %d/%d</string>
     <string name="sinDescargaTodavia">Bicipalma station state is still downloading. Please wait…</string>
 	 <string name="hello_world">Hello world!</string>

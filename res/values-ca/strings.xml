@@ -24,8 +24,8 @@
     <string name="prefactivarwifi_sum">Activa el wifi a l\'inici (millora la precisió de la ubicació)</string>
     <string name="estadoservicio">Estadístiques de Bicipalma</string>
     <string name="cerrar">Tancar</string>
-    <string formatted="false" name="estadisticasBicis">Total bicis: %d\n  En ús: %d (%.2f %%)\n  Disponibles: %d (%.2f %%)\n  Avariades: %d (%.2f %%)\n</string>
-    <string formatted="false" name="estadisticasAnclajes">Total ancoratges: %d\n  Ocupats: %d (%.2f %%)\n  Buits: %d (%.2f %%)\n  Avariats: %d (%.2f %%)\n\n</string>
+    <string formatted="false" name="estadisticasBicis">Total bicis:\n\tDisponibles: %d\n\tAvariades: %d\n\n</string>
+    <string formatted="false" name="estadisticasAnclajes">Total ancoratges: %d\n\tOcupats: %d (%.2f %%)\n\tBuits: %d (%.2f %%)\n\tAvariats: %d (%.2f %%)\n\n</string>
     <string formatted="false" name="estadisticasVacias">Estacions sense bicis: %d/%d</string>
     <string name="sinDescargaTodavia">Encara no s\'ha descarregat l\'estat de les estacions. Per favor esperi.</string>
 	 <string name="hello_world">Hola món</string>
