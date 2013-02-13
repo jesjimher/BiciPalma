@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -74,6 +75,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 	private RecuperarEstacionesTask descargaEstaciones;
 	
 	private boolean estatWifi=false;
+	private String providerCoarse;
 	
     /** Called when the activity is first created. */
     @Override
@@ -102,11 +104,18 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
  //    	dBuscaUbic=ProgressDialog.show(c, "",getString(R.string.buscandoubica),true,true);
 //        Toast.makeText(getApplicationContext(), "Activando", Toast.LENGTH_SHORT).show();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mUbic=LocationManager.NETWORK_PROVIDER;
-        locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
+        Criteria criteria = new Criteria();
+		criteria.setAccuracy( Criteria.ACCURACY_COARSE );
+		providerCoarse = locationManager.getBestProvider( criteria, true );
+		
+		if ( providerCoarse == null ) {
+	        Toast.makeText(getApplicationContext(), "No hay forma de posicionarse", Toast.LENGTH_SHORT).show();
+			return;
+		}		
+        locationManager.requestLocationUpdates(providerCoarse, 10, 0, (LocationListener) this);
 
         // Usar última ubicación conocida de red para empezar y recibir futuras actualizaciones
-        lBest=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        lBest=locationManager.getLastKnownLocation(providerCoarse);
      
     	// Guardar el inicio de búsqueda de ubicación para no pasarse de tiempo
     	//tIni=new Date().getTime();
@@ -185,7 +194,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
         	mUbic=LocationManager.GPS_PROVIDER;
         else {
 //        	Toast.makeText(getApplicationContext(), R.string.avisonogps, Toast.LENGTH_LONG).show();
-        	mUbic=LocationManager.NETWORK_PROVIDER;
+        	mUbic=providerCoarse;
         }
         locationManager.requestLocationUpdates(mUbic, 10, 0, (LocationListener) this);
 	}
@@ -249,7 +258,7 @@ public class MesProperesActivity extends Activity implements LocationListener,Di
 		}
     	// Si estamos en red y está el GPS activado, pasar a GPS
     	// TODO: En API 9 se puede recibir un evento cuando se active el GPS. Investigar si se puede hacer con los modernos sin perder compatibilidad con API 8
-    	if ((mUbic.equals(LocationManager.NETWORK_PROVIDER)) && (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)))
+    	if ((mUbic.equals(providerCoarse)) && (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)))
     		activarUbicacion();
     }
     
