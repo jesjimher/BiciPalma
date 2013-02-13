@@ -1,4 +1,4 @@
-/* Copyright 2012 Jesús Jiménez Herranz
+/* Copyright 2012 Jesï¿½s Jimï¿½nez Herranz
  * 
  * This file is part of BuscaBici
  * 
@@ -19,24 +19,29 @@
 package com.jesjimher.bicipalma;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.LevelListDrawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapaActivity extends MapActivity {
+public class MapaActivity extends FragmentActivity {
 
 	ArrayList<Estacion> estaciones;
+	private static final LatLng PZAESPANYA = new LatLng(39.573793,2.64065);
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,31 +49,44 @@ public class MapaActivity extends MapActivity {
         setContentView(R.layout.mapa);
 
         // Activar zoom
-        MapView mapView = (MapView) findViewById(R.id.mapview);
-        mapView.setBuiltInZoomControls(true);
-        MapController mc=mapView.getController();
-        mc.setZoom(17);     
+        GoogleMap mapa = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapfragment)).getMap();
+//        mapa.setBuiltInZoomControls(true);
+        mapa.setMyLocationEnabled(true);
 
+        // Si el mapa no estÃ¡ en Palma o similar, ponerlo en pza espaÃ±a
+        CameraPosition c=mapa.getCameraPosition();
+        Location actual=new Location("");
+        actual.setLatitude(c.target.latitude);
+        actual.setLongitude(c.target.longitude);
+        Location pe=new Location("");
+        pe.setLatitude(PZAESPANYA.latitude);
+        pe.setLongitude(PZAESPANYA.longitude);
+        if (actual.distanceTo(pe)>=5000)
+	        mapa.moveCamera(CameraUpdateFactory.newLatLng(PZAESPANYA));
+        	
         Intent i=getIntent();
-        GeoPoint point=null;
+//        GeoPoint point=null;
         if (i.hasExtra("estaciones")) {
         	estaciones=i.getExtras().getParcelableArrayList("estaciones");
         
-	        List<Overlay> mapOverlays = mapView.getOverlays();
-	        Drawable drawable = this.getResources().getDrawable(R.drawable.buscabici);
-	        EstacionesOverlay estoverlay = new EstacionesOverlay(drawable, this);
-
 	        for (Estacion e:estaciones) {
-	        	point = new GeoPoint((int)(e.getLoc().getLatitude()*1E6),(int) (e.getLoc().getLongitude()*1E6));
-//	        	OverlayItem overlayitem = new OverlayItem(point, e.getNombre(), "Libres: "+e.getBicisLibres());
-	        	estoverlay.addEstacion(e,point);
+	        	LevelListDrawable d=(LevelListDrawable) getResources().getDrawable(R.drawable.estado_variable);
+	        	d.setLevel(e.getBicisLibres()+1);
+	        	BitmapDrawable bd=(BitmapDrawable) d.getCurrent();
+	        	Bitmap b=bd.getBitmap();
+	        	Bitmap petit=Bitmap.createScaledBitmap(b, b.getWidth()/2,b.getHeight()/2, false);
+	        	String mensaje=String.format("%s: %d, %s: %d", getResources().getString(R.string.lbicislibres),e.getBicisLibres(),getResources().getString(R.string.lanclajeslibres),e.getAnclajesLibres());	        	
+	        	mapa.addMarker(new MarkerOptions()
+	        					.position(new LatLng(e.getLoc().getLatitude(),e.getLoc().getLongitude()))
+	        					.title(e.getNombre())
+	        					.snippet(mensaje)
+	        					.icon(BitmapDescriptorFactory.fromBitmap(petit))
+	        	);
 	        }
-	        mapOverlays.add(estoverlay);	        	
-	        
-	        int lat=(int) (i.getExtras().getDouble("latcentro")*1E6);
-	        int lon=(int) (i.getExtras().getDouble("longcentro")*1E6);
-	        GeoPoint gp=new GeoPoint(lat,lon);	        
-	        mc.animateTo(gp);
+	        Double lat=i.getExtras().getDouble("latcentro");
+	        Double lon=i.getExtras().getDouble("longcentro");
+	        mapa.moveCamera(CameraUpdateFactory.zoomTo(16));
+	        mapa.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lon)));
         }
     }
 
@@ -89,9 +107,9 @@ public class MapaActivity extends MapActivity {
         return super.onOptionsItemSelected(item);
     }
 
-	@Override
+/*	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
-	}
+	}*/
 
 }
