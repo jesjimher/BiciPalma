@@ -1,18 +1,20 @@
+NOTA: Aunque creo que es evidente, BiciPalma ya no funciona desde que la web de BiciPalma cambi√≥ su estructura. Ahora la web usa una API en condiciones, para la que hay que registrarse, y podr√≠a adaptarla pero tampoco tiene mucho sentido desde que la EMT sac√≥ su propia app. Dejo aqu√≠ el c√≥digo por motivos hist√≥ricos.
+
 v2.2
-Actualizada API de Google Maps, ahora los mapas son vectoriales y m·s r·pidos
+Actualizada API de Google Maps, ahora los mapas son vectoriales y m√°s r√°pidos
 Eliminado banner de publicidad
-Arreglado problema de visualizaciÛn en dispositivos de baja resoluciÛn (320x240)
+Arreglado problema de visualizaci√≥n en dispositivos de baja resoluci√≥n (320x240)
 Errores menores
 
 v2.1
 Uso de tema Holo en Android ICS y superiores.
-Ahora el men˙ de opciones se ve correctamente en todas las versiones de Android
-Liberado cÛdigo como GPL
+Ahora el men√∫ de opciones se ve correctamente en todas las versiones de Android
+Liberado c√≥digo como GPL
 
 v2.0
 Cambio de look visual para mejorar aspecto y visibilidad en exteriores
 Mapa interno para mostrar estaciones
-Mostrar ruta hasta una estaciÛn con clic largo
+Mostrar ruta hasta una estaci√≥n con clic largo
 Mejoras internas de rendimiento
 
 v1.3.1
@@ -20,20 +22,20 @@ Arreglado el cacheo de estaciones cuando el fichero estaba corrupto
 Aclarados algunos mensajes
 
 v1.3
-AÒadido timeout a las conexiones para no quedarse colgado, y di·logo de error
-AÒadida copia est·tica de las estaciones por si la web est· caÌda
+A√±adido timeout a las conexiones para no quedarse colgado, y di√°logo de error
+A√±adida copia est√°tica de las estaciones por si la web est√° ca√≠da
 
 v1.2
 Mostrado estado del servicio
 Arreglado icono de preferencias
-Arreglado mal uso del GPS si se activaba con la aplicaciÛn iniciada
+Arreglado mal uso del GPS si se activaba con la aplicaci√≥n iniciada
 Mejoras generales con el GPS
-Mejor consumo de baterÌa en el posicionamiento
+Mejor consumo de bater√≠a en el posicionamiento
 
 v1.1
-Acelerado el posicionamiento utilizando la ˙ltima posiciÛn conocida al iniciar
-AÒadida opciÛn para activar el wifi al iniciar
-Arreglada traducciÛn al inglÈs
+Acelerado el posicionamiento utilizando la √∫ltima posici√≥n conocida al iniciar
+A√±adida opci√≥n para activar el wifi al iniciar
+Arreglada traducci√≥n al ingl√©s
 
 v1.0 
 Inicial
